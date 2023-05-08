@@ -1,10 +1,14 @@
-import { Command } from '../app/app';
+import { AppCommand, PermissionsManager, RequirementsManager } from '../app/app';
 import {
     SlashCommandBuilder,
     CommandInteractionOptionResolver,
 } from 'discord.js';
 
-export default new Command({
+export default new AppCommand({
+    requirements: new RequirementsManager(),
+
+    perms: new PermissionsManager(),
+
     data: new SlashCommandBuilder()
         .setName('echo')
         .setDescription('Repeats a given message in the same channel')

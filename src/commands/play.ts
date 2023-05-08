@@ -1,11 +1,17 @@
-import { Command } from '../app/app';
+import { AppCommand, PermissionsManager, Requirements, RequirementsManager } from '../app/app';
 import {
     SlashCommandBuilder,
     CommandInteractionOptionResolver,
     inlineCode
 } from 'discord.js';
 
-export default new Command({
+export default new AppCommand({
+    requirements: new RequirementsManager(
+        Requirements.VoiceChannelRequired
+    ),
+
+    perms: new PermissionsManager(),
+
     data: new SlashCommandBuilder()
         .setName('play')
         .setDescription('Play audio in the voice channel the user is currently in')

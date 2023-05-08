@@ -1,10 +1,10 @@
 import 'dotenv/config';
 
-import { registerCommands, registerPlayerEvents, registerAppEvents } from './helpers';
+import { registerAppCommands, registerDistubeEvents, registerAppEvents, registerPlayerEvents } from './helpers';
 import { GatewayIntentBits, Client } from 'discord.js';
-import { App, Command, AppEvent } from './app/app';
+import { App, AppCommand, AppEvent } from './app/app';
 import { DisTube } from 'distube';
-import { Player, PlayerEvent } from './app/player';
+import { Player, DistubeEvent, PlayerEvent } from './app/player';
 import Commands from './commands/index';
 import Events from './events/index';
 
@@ -25,19 +25,25 @@ const client = new Client({
 
 const distube = new DisTube(client);
 
-const playerEvents: Map<string, PlayerEvent<any>> = registerPlayerEvents(
+const distubeEvents: Map<string, DistubeEvent<any>> = registerDistubeEvents(
     Events.addSong,
+    Events.distubeError,
+);
+
+const playerEvents: Map<string, PlayerEvent<any>> = registerPlayerEvents(
+    Events.playerError,
 );
 
 const player = new Player(
     client,
     distube,
+    distubeEvents,
     playerEvents
 );
 
 player.init();
 
-const commands: Map<string, Command> = registerCommands(
+const appCommand: Map<string, AppCommand> = registerAppCommands(
     Commands.echo,
     Commands.clear,
     Commands.play,
@@ -51,7 +57,7 @@ const appEvents: Map<string, AppEvent<any>> = registerAppEvents(
 const app = new App(
     client,
     player,
-    commands,
+    appCommand,
     appEvents,
 );
 

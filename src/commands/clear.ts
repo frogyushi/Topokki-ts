@@ -1,12 +1,17 @@
-import { Command } from '../app/app';
+import { AppCommand, PermissionsManager, RequirementsManager } from '../app/app';
 import {
     SlashCommandBuilder,
     CommandInteractionOptionResolver,
     PermissionFlagsBits,
-    TextChannel
+    TextChannel,
+    inlineCode
 } from 'discord.js';
 
-export default new Command({
+export default new AppCommand({
+    requirements: new RequirementsManager(),
+
+    perms: new PermissionsManager(),
+
     data: new SlashCommandBuilder()
         .setName('clear')
         .setDescription('Clears a specified amount of messages in the current text channel')
@@ -28,5 +33,7 @@ export default new Command({
         const amount = options.getNumber('amount')!;
 
         await textChannel.bulkDelete(amount, true);
+
+        interaction.reply(`${inlineCode(amount.toString())} messages removed`);
     }
 })

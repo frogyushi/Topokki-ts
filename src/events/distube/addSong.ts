@@ -1,7 +1,7 @@
 import discord from 'discord.js';
-import { PlayerEvent } from '../../app/player';
+import { DistubeEvent } from '../../app/player';
 
-export default new PlayerEvent({
+export default new DistubeEvent({
     name: 'addSong',
 
     callback: async (app, queue, song) => {
