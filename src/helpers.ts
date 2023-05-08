@@ -2,19 +2,27 @@ import { AppEvent, AppCommand } from './app/app';
 import { DistubeEvent } from './app/player';
 
 export function registerPlayerEvents(...events: DistubeEvent<any>[]) {
-    return new Map(events.map((event) => [event.name, event]));
+    const map = new Map(events.map((event) => [event.name, event]));
+    console.table([...map]);
+    return map;
 }
 
 export function registerDistubeEvents(...events: DistubeEvent<any>[]) {
-    return new Map(events.map((event) => [event.name, event]));
+    const map = new Map(events.map((event) => [event.name, event]));
+    console.table([...map]);
+    return map;
 }
 
 export function registerAppEvents(...events: AppEvent<any>[]) {
-    return new Map(events.map((event) => [event.name, event]));
+    const map = new Map(events.map((event) => [event.name, event]));
+    console.table([...map]);
+    return map;
 }
 
 export function registerAppCommands(...commands: AppCommand[]) {
-    return new Map(commands.map((command) => [command.data.name, command]));
+    const map = new Map(commands.map((command) => [command.data.name, command]));
+    console.table([...map]);
+    return map;
 }
 
 export function sanitize(data: object | any[]): object | any[] {

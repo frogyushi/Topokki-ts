@@ -6,7 +6,7 @@ export enum MessageResponses {
 	PermissionError = 'You do not have the necessary permissions to use this command',
 	RequestFailed = 'I was unable to process your request, please try again',
 	VoiceChannelRequired = 'You must be in a voice channel to use this command',
-	SameVoiceChannelRequiredError = 'You must be in the same voice channel as me to use this command',
+	SameVoiceChannelRequired = 'You must be in the same voice channel as me to use this command',
 	QueueRequired = 'There is currently no queue available to use this command',
 }
 

@@ -40,7 +40,7 @@ export default new AppEvent({
             !voiceChannel.members.has(app.client.user!.id)
         ) {
             new MessageBuilder()
-                .setContent(MessageResponses.SameVoiceChannelRequiredError)
+                .setContent(MessageResponses.SameVoiceChannelRequired)
                 .setEphemeral(true)
                 .send(interaction);
 

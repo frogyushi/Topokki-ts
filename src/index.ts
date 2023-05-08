@@ -1,5 +1,4 @@
 import 'dotenv/config';
-
 import { registerAppCommands, registerDistubeEvents, registerAppEvents, registerPlayerEvents } from './helpers';
 import { GatewayIntentBits, Client } from 'discord.js';
 import { App, AppCommand, AppEvent } from './app/app';
