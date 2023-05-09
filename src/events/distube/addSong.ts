@@ -34,7 +34,6 @@ export default new DistubeEvent({
             .setAuthor({ name: 'Added to Queue' })
             .setTitle(song.name!)
             .setTimestamp()
-            .setColor('#1E1F22')
             .addFields(embedFields);
 
         queue.textChannel!.send({ embeds: [embed] });
