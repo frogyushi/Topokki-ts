@@ -6,7 +6,7 @@ export default new ClientEvent({
 
     callback: async (app) => {
         app.deployCommands(app.commands);
-        app.client.user!.setActivity("the clouds :)", { type: ActivityType.Watching });
+        app.client.user!.setActivity("to hardcore music", { type: ActivityType.Listening });
 
         console.log('App is online');
     }
