@@ -46,6 +46,10 @@ const commands: Map<string, Command> = registerCommands(
     Commands.echo,
     Commands.clear,
     Commands.play,
+    Commands.nowplaying,
+    Commands.queue,
+    Commands.skip,
+    Commands.stop,
 );
 
 const clientEvents: Map<string, ClientEvent<any>> = registerEvents(
