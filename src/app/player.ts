@@ -88,9 +88,7 @@ export class Player {
         try {
             await this.distube.play(voiceChannel, searchTerm, playOptions);
         } catch (error) {
-            if (this.playerEvents.has('error')) {
-                this.emitter.emit('error', interaction, error);
-            }
+            this.emitter.emit('error', interaction, error);
         }
     }
 }

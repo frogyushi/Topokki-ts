@@ -39,7 +39,7 @@ export default new Command({
             },
             {
                 name: 'Next up',
-                value: nextUp ? nextUp.name! : '-',
+                value: nextUp?.name || '-',
                 inline: true,
             }
         ];
