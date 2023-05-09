@@ -1,10 +1,7 @@
-import { AppCommand, PermissionsManager, RequirementsManager } from '../app/app';
-import {
-    SlashCommandBuilder,
-    CommandInteractionOptionResolver,
-} from 'discord.js';
+import { Command, PermissionsManager, RequirementsManager } from '../app/app';
+import { SlashCommandBuilder, CommandInteractionOptionResolver } from 'discord.js';
 
-export default new AppCommand({
+export default new Command({
     requirements: new RequirementsManager(),
 
     perms: new PermissionsManager(),

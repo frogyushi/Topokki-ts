@@ -1,7 +1,7 @@
-import discord, { VoiceChannel } from 'discord.js';
-import { AppEvent, MessageBuilder, MessageResponses, Requirements } from '../../app/app';
+import { ClientEvent, MessageBuilder, MessageResponses, Requirements } from '../../app/app';
+import { GuildMember, VoiceChannel } from 'discord.js';
 
-export default new AppEvent({
+export default new ClientEvent({
     name: 'interactionCreate',
 
     callback: async (app, interaction) => {
@@ -11,7 +11,7 @@ export default new AppEvent({
 
         const command = app.commands.get(interaction.commandName);
         const guild = interaction.guild;
-        const member = interaction.member as discord.GuildMember;
+        const member = interaction.member as GuildMember;
         const voiceChannel = member.voice.channel as VoiceChannel;
 
         if (

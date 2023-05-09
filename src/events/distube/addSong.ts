@@ -1,4 +1,4 @@
-import discord from 'discord.js';
+import { APIEmbedField, EmbedBuilder } from 'discord.js';
 import { DistubeEvent } from '../../app/player';
 
 export default new DistubeEvent({
@@ -7,7 +7,7 @@ export default new DistubeEvent({
     callback: async (app, queue, song) => {
         const queueLength: number = queue.songs.length - 1;
 
-        const embedFields: discord.APIEmbedField[] = [
+        const embedFields: APIEmbedField[] = [
             {
                 name: 'Artist',
                 value: song.uploader.name!,
@@ -30,7 +30,7 @@ export default new DistubeEvent({
             }
         ]
 
-        const embed = new discord.EmbedBuilder()
+        const embed = new EmbedBuilder()
             .setAuthor({ name: 'Added to Queue' })
             .setTitle(song.name!)
             .setTimestamp()

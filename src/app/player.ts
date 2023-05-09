@@ -1,12 +1,7 @@
-import discord from 'discord.js';
 import * as distube from 'distube';
+import discord from 'discord.js';
 import { DistubeEventCallback, PlayerEventCallback } from '../types';
 import { EventEmitter } from 'events';
-
-export interface DistubeEventOptions<EventName extends keyof distube.DisTubeEvents> {
-    name: EventName;
-    callback: DistubeEventCallback<EventName>;
-}
 
 export interface PlayerEvents {
     error: [discord.CommandInteraction, Error]
@@ -15,6 +10,11 @@ export interface PlayerEvents {
 export interface PlayerEventOptions<EventName extends keyof PlayerEvents> {
     name: EventName;
     callback: PlayerEventCallback<EventName>;
+}
+
+export interface DistubeEventOptions<EventName extends keyof distube.DisTubeEvents> {
+    name: EventName;
+    callback: DistubeEventCallback<EventName>;
 }
 
 export class DistubeEvent<EventName extends keyof distube.DisTubeEvents> {

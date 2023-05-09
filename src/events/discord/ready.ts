@@ -1,7 +1,7 @@
 import { ActivityType } from 'discord.js';
-import { AppEvent } from '../../app/app';
+import { ClientEvent } from '../../app/app';
 
-export default new AppEvent({
+export default new ClientEvent({
     name: 'ready',
 
     callback: async (app) => {

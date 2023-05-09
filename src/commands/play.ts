@@ -1,11 +1,8 @@
-import { AppCommand, PermissionsManager, Requirements, RequirementsManager } from '../app/app';
-import {
-    SlashCommandBuilder,
-    CommandInteractionOptionResolver,
-    inlineCode
-} from 'discord.js';
+import { CommandInteractionOptionResolver, SlashCommandBuilder } from 'discord.js';
+import { Command, PermissionsManager, Requirements, RequirementsManager } from '../app/app';
+import { code } from '../helpers';
 
-export default new AppCommand({
+export default new Command({
     requirements: new RequirementsManager(
         Requirements.VoiceChannelRequired
     ),
@@ -27,6 +24,6 @@ export default new AppCommand({
 
         app.player.play(interaction, searchTerm);
 
-        interaction.reply(`Searching ${inlineCode(searchTerm)}`);
+        interaction.reply(`Searching ${code(searchTerm)}`);
     }
 })

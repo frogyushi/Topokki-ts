@@ -1,6 +1,12 @@
-import { AppEventCallback, CommandCallback, CommandOptionsData } from '../types';
 import discord from 'discord.js';
+import { ClientEventCallback, CommandCallback, CommandOptionsData } from '../types';
 import { Player } from './player';
+
+export enum Requirements {
+	VoiceChannelRequired = 'voiceChannelRequired',
+	SameVoiceChannelRequired = 'SameVoiceChannelRequired',
+	QueueRequired = 'queueRequired',
+}
 
 export enum MessageResponses {
 	PermissionError = 'You do not have the necessary permissions to use this command',
@@ -17,9 +23,14 @@ export interface CommandOptions {
 	readonly callback: CommandCallback;
 }
 
-export interface AppEventOptions<EventName extends keyof discord.ClientEvents> {
+export interface ClientEventOptions<EventName extends keyof discord.ClientEvents> {
 	name: EventName;
-	callback: AppEventCallback<EventName>;
+	callback: ClientEventCallback<EventName>;
+}
+
+export interface MessageBuilderOptions extends discord.MessageReplyOptions {
+	content?: string;
+	ephemeral?: boolean;
 }
 
 export class PermissionsManager {
@@ -28,12 +39,6 @@ export class PermissionsManager {
 	constructor(permissions: bigint = BigInt(0)) {
 		this.permissions = permissions;
 	}
-}
-
-export enum Requirements {
-	VoiceChannelRequired = 'voiceChannelRequired',
-	SameVoiceChannelRequired = 'SameVoiceChannelRequired',
-	QueueRequired = 'queueRequired',
 }
 
 export class RequirementsManager {
@@ -48,41 +53,39 @@ export class RequirementsManager {
 	}
 }
 
-export class MessageBuilder implements discord.MessageReplyOptions {
-	public content?: string;
-	public ephemeral?: boolean;
+export class MessageBuilder {
+	private readonly options: MessageBuilderOptions;
 
-	constructor() {
-		this.content = undefined;
-		this.ephemeral = undefined;
+	constructor(options: MessageBuilderOptions = {}) {
+		this.options = options;
 	}
 
 	public setContent(content: string): MessageBuilder {
-		this.content = content;
+		this.options.content = content;
 		return this;
 	}
 
 	public setEphemeral(ephemeral: boolean): MessageBuilder {
-		this.ephemeral = ephemeral;
+		this.options.ephemeral = ephemeral;
 		return this;
 	}
 
 	public send(interaction: discord.CommandInteraction): Promise<discord.InteractionResponse<boolean>> {
-		return interaction.reply({ content: this.content, ephemeral: this.ephemeral });
+		return interaction.reply(this.options as discord.InteractionReplyOptions);
 	}
 }
 
-export class AppEvent<EventName extends keyof discord.ClientEvents> {
+export class ClientEvent<EventName extends keyof discord.ClientEvents> {
 	public readonly name: EventName;
-	public readonly callback: AppEventCallback<EventName>;
+	public readonly callback: ClientEventCallback<EventName>;
 
-	constructor(options: AppEventOptions<EventName>) {
+	constructor(options: ClientEventOptions<EventName>) {
 		this.name = options.name;
 		this.callback = options.callback;
 	}
 }
 
-export class AppCommand {
+export class Command {
 	public readonly data: CommandOptionsData;
 	public readonly requirements: RequirementsManager;
 	public readonly permissions: bigint;
@@ -118,14 +121,14 @@ export class AppCommand {
 export class App {
 	public readonly client: discord.Client;
 	public readonly player: Player;
-	public readonly commands: Map<string, AppCommand>;
-	public readonly events: Map<string, AppEvent<any>>;
+	public readonly commands: Map<string, Command>;
+	public readonly events: Map<string, ClientEvent<any>>;
 
 	constructor(
 		client: discord.Client,
 		player: Player,
-		commands: Map<string, AppCommand>,
-		events: Map<string, AppEvent<any>>,
+		commands: Map<string, Command>,
+		events: Map<string, ClientEvent<any>>,
 	) {
 		this.client = client;
 		this.player = player;
@@ -137,14 +140,14 @@ export class App {
 		this.registerEvents(this.events);
 	}
 
-	private registerEvents(events: Map<string, AppEvent<any>>): void {
+	private registerEvents(events: Map<string, ClientEvent<any>>): void {
 		for (const event of events.values()) {
 			this.client.on(event.name, (...args) => event.callback(this, ...args));
 		}
 	}
 
-	public deployCommands(commands: Map<string, AppCommand>): void {
-		this.client.application?.commands.set(Array.from(commands.values(), (AppCommand) => AppCommand.data));
+	public deployCommands(commands: Map<string, Command>): void {
+		this.client.application?.commands.set(Array.from(commands.values(), (command) => command.data));
 	}
 
 	public login(token: string): Promise<string> {
