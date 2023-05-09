@@ -1,5 +1,6 @@
 import { Command, PermissionsManager, Requirements, RequirementsManager } from '../app/app';
 import { Guild, SlashCommandBuilder } from 'discord.js';
+import { Queue } from 'distube';
 
 export default new Command({
     requirements: new RequirementsManager(
@@ -16,9 +17,9 @@ export default new Command({
 
     callback: async (app, interaction) => {
         const guild = interaction.guild as Guild;
-        const queue = app.player.distube.getQueue(guild.id);
+        const queue = app.player.distube.getQueue(guild.id) as Queue;
 
-        app.player.distube.skip(queue!);
+        queue.songs.length <= 1 ? queue.stop() : queue.skip();
 
         interaction.reply('The current song has been skipped');
     }
