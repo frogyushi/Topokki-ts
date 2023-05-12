@@ -19,7 +19,7 @@ export default new Command({
             PermissionFlagsBits.Administrator |
             PermissionFlagsBits.ManageMessages
         )
-        .addNumberOption(option => option
+        .addNumberOption((option) => option
             .setName('amount')
             .setDescription('Provide an amount')
             .setRequired(true)

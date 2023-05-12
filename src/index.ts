@@ -24,12 +24,12 @@ const client = new Client({
 
 const distube = new DisTube(client);
 
-const distubeEvents: Map<string, DistubeEvent<any>> = registerEvents(
+const distubeEvents = registerEvents<DistubeEvent<any>>(
     Events.addSong,
     Events.distubeError,
 );
 
-const playerEvents: Map<string, PlayerEvent<any>> = registerEvents(
+const playerEvents = registerEvents<PlayerEvent<any>>(
     Events.playerError,
 );
 
@@ -52,7 +52,7 @@ const commands: Map<string, Command> = registerCommands(
     Commands.stop,
 );
 
-const clientEvents: Map<string, ClientEvent<any>> = registerEvents(
+const clientEvents = registerEvents<ClientEvent<any>>(
     Events.ready,
     Events.interactionCreate,
 );

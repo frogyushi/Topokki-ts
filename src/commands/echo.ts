@@ -9,12 +9,12 @@ export default new Command({
     data: new SlashCommandBuilder()
         .setName('echo')
         .setDescription('Repeats a given message in the same channel')
-        .addStringOption(option => option
+        .addStringOption((option) => option
             .setName('message')
             .setDescription('Provide a message')
             .setRequired(true)
         )
-        .addBooleanOption(option => option
+        .addBooleanOption((option) => option
             .setName('hidden')
             .setDescription('Set reply to be anonymous')
         ),

@@ -1,6 +1,7 @@
-import { Command } from './app/app';
+import { ClientEvent, Command, NamedEvent } from './app/app';
+import { DistubeEvent, PlayerEvent } from './app/player';
 
-export function registerEvents(...events: any[]) {
+export function registerEvents<Event extends NamedEvent>(...events: Event[]) {
     return new Map(events.map((event) => [event.name, event]));
 }
 
@@ -9,21 +10,10 @@ export function registerCommands(...commands: Command[]) {
 }
 
 export function delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-export function bold(content: string | number): string {
-    return `**${content.toString()}**`;
-}
-
-export function code(content: string | number): string {
-    return `\`${content.toString()}\``;
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function sanitize(data: object | any[]): object | any[] {
-    if (Array.isArray(data)) {
-        return data.filter(value => value !== null);
-    }
-
+    if (Array.isArray(data)) return data.filter((value) => value !== null);
     return Object.fromEntries(Object.entries(data).filter(([_, value]) => value !== null));
 }

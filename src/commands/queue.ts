@@ -1,7 +1,6 @@
 import { Queue } from 'distube';
 import { Command, PermissionsManager, Requirements, RequirementsManager } from '../app/app';
 import { SlashCommandBuilder, Guild, EmbedBuilder } from 'discord.js';
-import { bold } from '../helpers';
 
 export default new Command({
     requirements: new RequirementsManager(
@@ -21,7 +20,7 @@ export default new Command({
         const nextSongs = queue.songs.slice(1, 11);
 
         const songs = nextSongs
-            .map((song, i) => `${bold(i + 1)} - ${song.name} - ${song.formattedDuration}`)
+            .map((song, i) => `**${i + 1}** - ${song.name} - ${song.formattedDuration}`)
             .join('\n\n');
 
         const embed = new EmbedBuilder()

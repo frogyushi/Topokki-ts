@@ -2,12 +2,6 @@ import discord from 'discord.js';
 import { ClientEventCallback, CommandCallback, CommandOptionsData } from '../types';
 import { Player } from './player';
 
-export enum Requirements {
-	VoiceChannelRequired = 'voiceChannelRequired',
-	SameVoiceChannelRequired = 'SameVoiceChannelRequired',
-	QueueRequired = 'queueRequired',
-}
-
 export enum MessageResponses {
 	PermissionError = 'You do not have the necessary permissions to use this command',
 	RequestFailed = 'I was unable to process your request, please try again',
@@ -16,16 +10,38 @@ export enum MessageResponses {
 	QueueRequired = 'There is currently no queue available to use this command',
 }
 
-export interface CommandOptions {
-	readonly requirements: RequirementsManager;
-	readonly perms: PermissionsManager;
-	readonly data: CommandOptionsData;
-	readonly callback: CommandCallback;
+export enum Requirements {
+	VoiceChannelRequired = 'voiceChannelRequired',
+	SameVoiceChannelRequired = 'SameVoiceChannelRequired',
+	QueueRequired = 'queueRequired',
+}
+
+export interface NamedEvent {
+	name: string;
+	callback: Function;
 }
 
 export interface ClientEventOptions<EventName extends keyof discord.ClientEvents> {
 	name: EventName;
 	callback: ClientEventCallback<EventName>;
+}
+
+export interface CommandBaseOptions {
+	readonly requirements: RequirementsManager;
+	readonly perms: PermissionsManager;
+	readonly callback: CommandCallback;
+}
+
+export interface CommandOptions extends CommandBaseOptions {
+	readonly data: CommandOptionsData;
+}
+
+export interface CommandCategory {
+	readonly data: CommandOptionsData;
+}
+
+export interface SubCommandOptions extends CommandBaseOptions { 
+	readonly category: string;
 }
 
 export interface MessageBuilderOptions extends discord.MessageReplyOptions {
@@ -75,7 +91,7 @@ export class MessageBuilder {
 	}
 }
 
-export class ClientEvent<EventName extends keyof discord.ClientEvents> {
+export class ClientEvent<EventName extends keyof discord.ClientEvents> implements NamedEvent {
 	public readonly name: EventName;
 	public readonly callback: ClientEventCallback<EventName>;
 
@@ -85,20 +101,18 @@ export class ClientEvent<EventName extends keyof discord.ClientEvents> {
 	}
 }
 
-export class Command {
-	public readonly data: CommandOptionsData;
+export class CommandBase {
 	public readonly requirements: RequirementsManager;
 	public readonly permissions: bigint;
 	public readonly callback: CommandCallback;
 
-	constructor(options: CommandOptions) {
-		this.data = options.data;
+	constructor(options: CommandBaseOptions) {
 		this.requirements = options.requirements;
 		this.permissions = options.perms.permissions;
 		this.callback = (app, interaction) => this.beforeCallback(app, interaction, options.callback);
 	}
 
-	private beforeCallback(app: App, interaction: discord.CommandInteraction, callback: CommandCallback): void {
+	protected beforeCallback(app: App, interaction: discord.CommandInteraction, callback: CommandCallback): void {
 		const perms: boolean = this.checkPermissions(interaction);
 
 		if (!perms) {
@@ -113,8 +127,24 @@ export class Command {
 		callback(app, interaction);
 	}
 
-	private checkPermissions(interaction: discord.CommandInteraction): boolean {
+	protected checkPermissions(interaction: discord.CommandInteraction): boolean {
 		return (interaction.member as discord.GuildMember).permissions.has(this.permissions);
+	}
+}
+
+export class Command extends CommandBase {
+	public readonly data: CommandOptionsData;
+
+	constructor(options: CommandOptions) {
+		super(options);
+
+		this.data = options.data;
+	}
+}
+
+export class SubCommand extends CommandBase {
+	constructor(options: SubCommandOptions) {
+		super(options);
 	}
 }
 

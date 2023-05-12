@@ -1,6 +1,5 @@
 import { CommandInteractionOptionResolver, SlashCommandBuilder } from 'discord.js';
 import { Command, PermissionsManager, Requirements, RequirementsManager } from '../app/app';
-import { code } from '../helpers';
 
 export default new Command({
     requirements: new RequirementsManager(
@@ -12,7 +11,7 @@ export default new Command({
     data: new SlashCommandBuilder()
         .setName('play')
         .setDescription('Play audio in the voice channel the user is currently in')
-        .addStringOption(option => option
+        .addStringOption((option) => option
             .setName('search_term')
             .setDescription('Play any audio or video content by providing a search term or a url')
             .setRequired(true)
@@ -24,6 +23,6 @@ export default new Command({
 
         app.player.play(interaction, searchTerm);
 
-        interaction.reply(`Searching ${code(searchTerm)}`);
+        interaction.reply(`Searching \`${searchTerm}\``);
     }
 })
