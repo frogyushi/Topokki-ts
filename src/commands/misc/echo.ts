@@ -1,10 +1,12 @@
-import { Command, PermissionsManager, RequirementsManager } from '../app/app';
+import { Command, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
 import { SlashCommandBuilder, CommandInteractionOptionResolver } from 'discord.js';
 
 export default new Command({
     requirements: new RequirementsManager(),
 
     perms: new PermissionsManager(),
+
+    subcommands: new SubcommandManager(),
 
     data: new SlashCommandBuilder()
         .setName('echo')

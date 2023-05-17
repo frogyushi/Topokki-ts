@@ -1,6 +1,12 @@
 import { APIEmbedField, EmbedBuilder, Guild, SlashCommandBuilder } from 'discord.js';
-import { Command, PermissionsManager, Requirements, RequirementsManager } from '../app/app';
 import { Queue } from 'distube';
+import {
+    Command,
+    PermissionsManager,
+    Requirements,
+    RequirementsManager,
+    SubcommandManager
+} from '../../app/app';
 
 export default new Command({
     requirements: new RequirementsManager(
@@ -10,6 +16,8 @@ export default new Command({
     ),
 
     perms: new PermissionsManager(),
+
+    subcommands: new SubcommandManager(),
 
     data: new SlashCommandBuilder()
         .setName('nowplaying')

@@ -1,10 +1,11 @@
-import echo from './echo';
-import clear from './clear';
-import play from './play';
-import nowplaying from './nowplaying';
-import queue from './queue';
-import skip from './skip';
-import stop from './stop';
+import echo from './misc/echo';
+import clear from './admin/clear';
+import play from './player/play';
+import nowplaying from './player/nowplaying';
+import queue from './player/queue';
+import skip from './player/skip';
+import stop from './player/stop';
+import leaderboard from './misc/leaderboard';
 
 export default {
     clear,
@@ -14,4 +15,5 @@ export default {
     queue,
     skip,
     stop,
+    leaderboard,
 }

@@ -1,16 +1,17 @@
-import { Command, PermissionsManager, RequirementsManager } from '../app/app';
+import { Command, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
 import {
     SlashCommandBuilder,
     CommandInteractionOptionResolver,
     PermissionFlagsBits,
     TextChannel,
-    inlineCode
 } from 'discord.js';
 
 export default new Command({
     requirements: new RequirementsManager(),
 
     perms: new PermissionsManager(),
+
+    subcommands: new SubcommandManager(),
 
     data: new SlashCommandBuilder()
         .setName('clear')
@@ -34,6 +35,6 @@ export default new Command({
 
         await textChannel.bulkDelete(amount, true);
 
-        interaction.reply(`${inlineCode(amount.toString())} messages removed`);
+        interaction.reply(`\`${amount}\` messages removed`);
     }
 })

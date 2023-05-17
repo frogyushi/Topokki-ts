@@ -1,4 +1,4 @@
-import { TextChannel, inlineCode } from 'discord.js';
+import { TextChannel } from 'discord.js';
 import { DistubeEvent } from '../../app/player';
 
 export default new DistubeEvent({
@@ -7,6 +7,6 @@ export default new DistubeEvent({
     callback: async (app, queue, playlist) => {
         const textChannel = queue.textChannel as TextChannel;
 
-        textChannel.send(`Added ${inlineCode(playlist.songs.length.toString())} songs to the queue`);
+        textChannel.send(`Added \`${playlist.songs.length}\` songs to the queue`);
     }
 });

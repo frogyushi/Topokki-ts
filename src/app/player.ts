@@ -5,7 +5,7 @@ import { EventEmitter } from 'events';
 import { NamedEvent } from './app';
 
 export interface PlayerEvents {
-    error: [discord.CommandInteraction, Error]
+    error: [discord.CommandInteraction, Error];
 }
 
 export interface PlayerEventOptions<EventName extends keyof PlayerEvents> {
@@ -28,7 +28,7 @@ export class DistubeEvent<EventName extends keyof distube.DisTubeEvents> impleme
     }
 }
 
-export class PlayerEvent<EventName extends keyof PlayerEvents> implements NamedEvent  {
+export class PlayerEvent<EventName extends keyof PlayerEvents> implements NamedEvent {
     public readonly name: EventName;
     public readonly callback: PlayerEventCallback<EventName>;
 

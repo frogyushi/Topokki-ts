@@ -1,6 +1,8 @@
 import discord from 'discord.js';
 import { ClientEventCallback, CommandCallback, CommandOptionsData } from '../types';
 import { Player } from './player';
+import { cleanArray } from '../helpers';
+import { Database } from './database';
 
 export enum MessageResponses {
 	PermissionError = 'You do not have the necessary permissions to use this command',
@@ -8,6 +10,7 @@ export enum MessageResponses {
 	VoiceChannelRequired = 'You must be in a voice channel to use this command',
 	SameVoiceChannelRequired = 'You must be in the same voice channel as me to use this command',
 	QueueRequired = 'There is currently no queue available to use this command',
+	UnknownError = 'Something went wrong, try again',
 }
 
 export enum Requirements {
@@ -26,27 +29,33 @@ export interface ClientEventOptions<EventName extends keyof discord.ClientEvents
 	callback: ClientEventCallback<EventName>;
 }
 
-export interface CommandBaseOptions {
+export interface baseCommandOptions {
 	readonly requirements: RequirementsManager;
 	readonly perms: PermissionsManager;
-	readonly callback: CommandCallback;
+	readonly callback?: CommandCallback;
 }
 
-export interface CommandOptions extends CommandBaseOptions {
+export interface CommandOptions extends baseCommandOptions {
 	readonly data: CommandOptionsData;
+	readonly subcommands: SubcommandManager;
 }
 
-export interface CommandCategory {
-	readonly data: CommandOptionsData;
-}
-
-export interface SubCommandOptions extends CommandBaseOptions { 
-	readonly category: string;
+export interface SubcommandOptions extends baseCommandOptions {
+	readonly data: SlashSubcommandBuilder;
 }
 
 export interface MessageBuilderOptions extends discord.MessageReplyOptions {
 	content?: string;
 	ephemeral?: boolean;
+}
+
+export class SlashSubcommandBuilder {
+	public route?: string;
+
+	public setRoute(route: string) {
+		this.route = route;
+		return this;
+	}
 }
 
 export class PermissionsManager {
@@ -64,7 +73,7 @@ export class RequirementsManager {
 		this.requirements = requirements;
 	}
 
-	hasRequirements(...requirements: Requirements[]): boolean {
+	public hasRequirements(...requirements: Requirements[]): boolean {
 		return requirements.every((requirement) => this.requirements.includes(requirement));
 	}
 }
@@ -101,18 +110,18 @@ export class ClientEvent<EventName extends keyof discord.ClientEvents> implement
 	}
 }
 
-export class CommandBase {
+export class BaseCommand {
 	public readonly requirements: RequirementsManager;
 	public readonly permissions: bigint;
 	public readonly callback: CommandCallback;
 
-	constructor(options: CommandBaseOptions) {
+	constructor(options: baseCommandOptions) {
 		this.requirements = options.requirements;
 		this.permissions = options.perms.permissions;
-		this.callback = (app, interaction) => this.beforeCallback(app, interaction, options.callback);
+		this.callback = (app, interaction) => this._callback(app, interaction, this, options.callback);
 	}
 
-	protected beforeCallback(app: App, interaction: discord.CommandInteraction, callback: CommandCallback): void {
+	protected _callback(app: App, interaction: discord.CommandInteraction, baseCommand: BaseCommand, callback?: CommandCallback): void {
 		const perms: boolean = this.checkPermissions(interaction);
 
 		if (!perms) {
@@ -124,27 +133,83 @@ export class CommandBase {
 			return;
 		}
 
-		callback(app, interaction);
+		this.beforeCallback(app, interaction, baseCommand);
+		callback?.(app, interaction, baseCommand);
 	}
+
+	protected beforeCallback(app: App, interaction: discord.CommandInteraction, baseCommand: BaseCommand): void { }
 
 	protected checkPermissions(interaction: discord.CommandInteraction): boolean {
 		return (interaction.member as discord.GuildMember).permissions.has(this.permissions);
 	}
 }
 
-export class Command extends CommandBase {
+export class SubcommandManager {
+	public readonly subcommands: Map<string, Subcommand> = new Map();
+
+	constructor(...subcommands: Subcommand[]) {
+		for (const sub of subcommands) {
+			this.subcommands.set(sub.getPath(), sub);
+		}
+	}
+
+	private getPath(interaction: discord.CommandInteraction) {
+		const options = interaction.options as discord.CommandInteractionOptionResolver;
+		const name = interaction.commandName;
+		const group = options.getSubcommandGroup();
+		const subgroup = options.getSubcommand();
+
+		return cleanArray<string>([name, group, subgroup]).join('.');
+	}
+
+	public getSubcommand(interaction: discord.CommandInteraction): Subcommand | undefined {
+		return this.subcommands.get(this.getPath(interaction));
+	}
+}
+
+export class Command extends BaseCommand {
 	public readonly data: CommandOptionsData;
+	public readonly subcommands: SubcommandManager;
 
 	constructor(options: CommandOptions) {
 		super(options);
 
 		this.data = options.data;
+		this.subcommands = options.subcommands;
+	}
+
+	protected beforeCallback(app: App, interaction: discord.CommandInteraction, baseCommand: BaseCommand) {
+		if (this.subcommands.subcommands.size <= 0) {
+			return;
+		}
+
+		const command = baseCommand as Command;
+		const subcommand = command.subcommands.getSubcommand(interaction);
+
+		if (!subcommand) {
+			new MessageBuilder()
+				.setContent(MessageResponses.UnknownError)
+				.setEphemeral(true)
+				.send(interaction);
+
+			return;
+		}
+
+		subcommand.callback(app, interaction, baseCommand);
 	}
 }
 
-export class SubCommand extends CommandBase {
-	constructor(options: SubCommandOptions) {
+export class Subcommand extends BaseCommand {
+	public readonly data: SlashSubcommandBuilder;
+
+	constructor(options: SubcommandOptions) {
 		super(options);
+
+		this.data = options.data;
+	}
+
+	public getPath(): string {
+		return this.data.route!;
 	}
 }
 
@@ -153,14 +218,17 @@ export class App {
 	public readonly player: Player;
 	public readonly commands: Map<string, Command>;
 	public readonly events: Map<string, ClientEvent<any>>;
+	public readonly database: Database;
 
 	constructor(
 		client: discord.Client,
+		database: Database,
 		player: Player,
 		commands: Map<string, Command>,
 		events: Map<string, ClientEvent<any>>,
 	) {
 		this.client = client;
+		this.database = database;
 		this.player = player;
 		this.commands = commands;
 		this.events = events;

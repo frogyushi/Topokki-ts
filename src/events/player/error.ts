@@ -9,7 +9,10 @@ export default new PlayerEvent({
         await delay(1000);
 
         try {
-            const reply = interaction.replied ? interaction.followUp.bind(interaction) : interaction.reply.bind(interaction);
+            const reply = interaction.replied
+                ? interaction.followUp.bind(interaction)
+                : interaction.reply.bind(interaction);
+
             reply(MessageResponses.RequestFailed);
         } catch (err) {
             console.error(err);

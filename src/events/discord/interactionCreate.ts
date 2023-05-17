@@ -60,7 +60,7 @@ export default new ClientEvent({
         }
 
         try {
-            await command.callback(app, interaction);
+            await command.callback(app, interaction, command);
         } catch (err) {
             console.error(err);
         }

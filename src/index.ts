@@ -1,9 +1,11 @@
 import 'dotenv/config';
 import { registerCommands, registerEvents } from './helpers';
 import { GatewayIntentBits, Client } from 'discord.js';
-import { App, Command, ClientEvent } from './app/app';
+import { App, ClientEvent } from './app/app';
 import { DisTube } from 'distube';
 import { Player, DistubeEvent, PlayerEvent } from './app/player';
+import { Database } from './app/database';
+import Schemas from './schemas/index';
 import Commands from './commands/index';
 import Events from './events/index';
 
@@ -37,12 +39,12 @@ const player = new Player(
     client,
     distube,
     distubeEvents,
-    playerEvents
+    playerEvents,
 );
 
 player.init();
 
-const commands: Map<string, Command> = registerCommands(
+const commands = registerCommands(
     Commands.echo,
     Commands.clear,
     Commands.play,
@@ -50,6 +52,7 @@ const commands: Map<string, Command> = registerCommands(
     Commands.queue,
     Commands.skip,
     Commands.stop,
+    Commands.leaderboard,
 );
 
 const clientEvents = registerEvents<ClientEvent<any>>(
@@ -57,8 +60,15 @@ const clientEvents = registerEvents<ClientEvent<any>>(
     Events.interactionCreate,
 );
 
+const database = new Database(
+    Schemas.leaderboard,
+);
+
+database.connect(process.env.MONGO_URI!);
+
 const app = new App(
     client,
+    database,
     player,
     commands,
     clientEvents,
