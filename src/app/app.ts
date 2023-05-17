@@ -1,5 +1,5 @@
 import discord from 'discord.js';
-import { ClientEventCallback, CommandCallback, CommandOptionsData } from '../types';
+import { ClientEventCallback, CommandCallback, CommandBuilder } from '../types';
 import { Player } from './player';
 import { cleanArray } from '../helpers';
 import { Database } from './database';
@@ -29,19 +29,19 @@ export interface ClientEventOptions<EventName extends keyof discord.ClientEvents
 	callback: ClientEventCallback<EventName>;
 }
 
-export interface baseCommandOptions {
+export interface BaseCommandOptions {
 	readonly requirements: RequirementsManager;
 	readonly perms: PermissionsManager;
 	readonly callback?: CommandCallback;
 }
 
-export interface CommandOptions extends baseCommandOptions {
-	readonly data: CommandOptionsData;
+export interface CommandOptions extends BaseCommandOptions {
+	readonly data: CommandBuilder;
 	readonly subcommands: SubcommandManager;
 }
 
-export interface SubcommandOptions extends baseCommandOptions {
-	readonly data: SlashSubcommandBuilder;
+export interface SubcommandOptions extends BaseCommandOptions {
+	readonly data: SubcommandBuilder;
 }
 
 export interface MessageBuilderOptions extends discord.MessageReplyOptions {
@@ -49,7 +49,7 @@ export interface MessageBuilderOptions extends discord.MessageReplyOptions {
 	ephemeral?: boolean;
 }
 
-export class SlashSubcommandBuilder {
+export class SubcommandBuilder {
 	public route?: string;
 
 	public setRoute(route: string) {
@@ -115,7 +115,7 @@ export class BaseCommand {
 	public readonly permissions: bigint;
 	public readonly callback: CommandCallback;
 
-	constructor(options: baseCommandOptions) {
+	constructor(options: BaseCommandOptions) {
 		this.requirements = options.requirements;
 		this.permissions = options.perms.permissions;
 		this.callback = (app, interaction) => this._callback(app, interaction, this, options.callback);
@@ -168,7 +168,7 @@ export class SubcommandManager {
 }
 
 export class Command extends BaseCommand {
-	public readonly data: CommandOptionsData;
+	public readonly data: CommandBuilder;
 	public readonly subcommands: SubcommandManager;
 
 	constructor(options: CommandOptions) {
@@ -200,7 +200,7 @@ export class Command extends BaseCommand {
 }
 
 export class Subcommand extends BaseCommand {
-	public readonly data: SlashSubcommandBuilder;
+	public readonly data: SubcommandBuilder;
 
 	constructor(options: SubcommandOptions) {
 		super(options);

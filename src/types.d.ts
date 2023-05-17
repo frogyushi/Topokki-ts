@@ -11,4 +11,4 @@ export type DistubeEventCallback<EventName extends keyof distube.DisTubeEvents> 
 
 export type PlayerEventCallback<EventName extends keyof player.PlayerEvents> = (player: player.Player, ...args: player.PlayerEvents[EventName]) => discord.Awaitable<void>;
 
-export type CommandOptionsData = Omit<discord.SlashCommandBuilder, "addSubcommandGroup" | "addSubcommand" | "addBooleanOption" | "addUserOption" | "addChannelOption" | "addRoleOption" | "addAttachmentOption" | "addMentionableOption" | "addStringOption" | "addIntegerOption" | "addNumberOption">;
+export type CommandBuilder = Omit<discord.SlashCommandBuilder, "addSubcommandGroup" | "addSubcommand" | "addBooleanOption" | "addUserOption" | "addChannelOption" | "addRoleOption" | "addAttachmentOption" | "addMentionableOption" | "addStringOption" | "addIntegerOption" | "addNumberOption">;

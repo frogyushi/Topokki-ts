@@ -2,7 +2,7 @@ import { APIEmbedField, EmbedBuilder } from 'discord.js';
 import {
     PermissionsManager,
     RequirementsManager,
-    SlashSubcommandBuilder,
+    SubcommandBuilder,
     Subcommand
 } from '../../../app/app';
 
@@ -11,7 +11,7 @@ export default new Subcommand({
 
     perms: new PermissionsManager(),
 
-    data: new SlashSubcommandBuilder()
+    data: new SubcommandBuilder()
         .setRoute('leaderboard.show'),
 
     callback: async (app, interaction) => {
