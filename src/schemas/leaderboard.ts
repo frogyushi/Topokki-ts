@@ -1,12 +1,13 @@
-import { Schema } from '../app/database';
+import mongoose from 'mongoose';
 
-export default new Schema({
-    name: 'leaderboard',
-
-    model: {
-        guildId: { type: String, required: true },
-        userId: { type: String },
-        points: { type: Number, default: 0 },
-        lastActive: { type: String },
-    },
+const LeaderboardSchema = new mongoose.Schema({
+    guildId: { type: String, required: true },
+    userId: { type: String },
+    points: { type: Number, default: 0 },
+    isMember: { type: Boolean, default: true },
+    lastActive: { type: String },
 });
+
+const Leaderboard = mongoose.model('Leaderboard', LeaderboardSchema);
+
+export default Leaderboard;

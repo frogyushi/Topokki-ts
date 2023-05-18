@@ -1,4 +1,4 @@
-import { APIEmbedField, EmbedBuilder } from 'discord.js';
+import { APIEmbedField, EmbedBuilder, Guild } from 'discord.js';
 import {
     PermissionsManager,
     RequirementsManager,
@@ -15,25 +15,19 @@ export default new Subcommand({
         .setRoute('leaderboard.show'),
 
     callback: async (app, interaction) => {
-        const Leaderboard = app.database.get('leaderboard')!.model;
+        const guild = interaction.guild as Guild;
+        const leaderboard = await app.getLeaderboard(guild.id);
 
-        const members = await Leaderboard
-            .find({ guildId: interaction.guild!.id })
-            .sort({ points: -1 })
-            .limit(10) || [];
+        const texts: string[] = [];
+        const points: string[] = [];
 
-        const texts = [];
-        const points = [];
+        for (const [i, entry] of leaderboard.entries.entries()) {
+            const user = await app.client.users.fetch(entry.userId, { cache: true }).catch(() => null);
 
-        for (const [id, member] of members.entries()) {
-            const user = await app.client.users.fetch(member.userId).catch(() => null);
-
-            if (!user || user?.bot || member.points <= 0) {
-                continue;
+            if (user && !user.bot && entry.points !== 0) {
+                texts.push(`**${i + 1}** - ${user.tag}`);
+                points.push(entry.points.toString());
             }
-
-            texts.push(`**${id + 1}** - ${user.tag}`);
-            points.push(member.points);
         }
 
         const embedFields: APIEmbedField[] = [

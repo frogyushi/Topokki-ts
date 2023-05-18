@@ -80,16 +80,14 @@ export class Player {
         const textChannel = interaction.channel as discord.TextChannel;
         const voiceChannel = member.voice.channel as discord.VoiceChannel;
 
-        const playOptions: distube.PlayOptions = {
-            textChannel: textChannel,
-            member: member,
-            ...options,
-        };
-
         try {
-            await this.distube.play(voiceChannel, searchTerm, playOptions);
-        } catch (error) {
-            this.emitter.emit('error', interaction, error);
+            await this.distube.play(voiceChannel, searchTerm, {
+                textChannel,
+                member,
+                ...options,
+            });
+        } catch (err) {
+            this.emitter.emit('error', interaction, err);
         }
     }
 }

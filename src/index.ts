@@ -3,11 +3,11 @@ import { registerCommands, registerEvents } from './helpers';
 import { GatewayIntentBits, Client } from 'discord.js';
 import { App, ClientEvent } from './app/app';
 import { DisTube } from 'distube';
+import { connect } from 'mongoose';
 import { Player, DistubeEvent, PlayerEvent } from './app/player';
-import { Database } from './app/database';
-import Schemas from './schemas/index';
-import Commands from './commands/index';
-import Events from './events/index';
+import LeaderboardRepository from './repositories/leaderboard';
+import commands from './commands/index';
+import events from './events/index';
 
 const client = new Client({
     intents: [
@@ -26,52 +26,50 @@ const client = new Client({
 
 const distube = new DisTube(client);
 
-const distubeEvents = registerEvents<DistubeEvent<any>>(
-    Events.addSong,
-    Events.distubeError,
+const distubeEventsMap = registerEvents<DistubeEvent<any>>(
+    events.addSong,
+    events.distubeError,
 );
 
-const playerEvents = registerEvents<PlayerEvent<any>>(
-    Events.playerError,
+const playerEventsMap = registerEvents<PlayerEvent<any>>(
+    events.playerError,
 );
 
 const player = new Player(
     client,
     distube,
-    distubeEvents,
-    playerEvents,
+    distubeEventsMap,
+    playerEventsMap,
 );
 
 player.init();
 
-const commands = registerCommands(
-    Commands.echo,
-    Commands.clear,
-    Commands.play,
-    Commands.nowplaying,
-    Commands.queue,
-    Commands.skip,
-    Commands.stop,
-    Commands.leaderboard,
+const commandsMap = registerCommands(
+    commands.echo,
+    commands.clear,
+    commands.play,
+    commands.nowplaying,
+    commands.queue,
+    commands.skip,
+    commands.stop,
+    commands.leaderboard,
 );
 
-const clientEvents = registerEvents<ClientEvent<any>>(
-    Events.ready,
-    Events.interactionCreate,
+const clientEventsMap = registerEvents<ClientEvent<any>>(
+    events.ready,
+    events.interactionCreate,
 );
 
-const database = new Database(
-    Schemas.leaderboard,
-);
+connect(process.env.MONGO_URI!, { keepAlive: true });
 
-database.connect(process.env.MONGO_URI!);
+const leaderboardRepo = new LeaderboardRepository();
 
 const app = new App(
     client,
-    database,
     player,
-    commands,
-    clientEvents,
+    commandsMap,
+    clientEventsMap,
+    leaderboardRepo,
 );
 
 app.login(process.env.CLIENT_TOKEN!);

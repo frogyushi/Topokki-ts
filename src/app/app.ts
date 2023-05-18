@@ -2,7 +2,8 @@ import discord from 'discord.js';
 import { ClientEventCallback, CommandCallback, CommandBuilder } from '../types';
 import { Player } from './player';
 import { cleanArray } from '../helpers';
-import { Database } from './database';
+import { Leaderboard } from './models/leaderboard';
+import LeaderboardRepository from '../repositories/leaderboard';
 
 export enum MessageResponses {
 	PermissionError = 'You do not have the necessary permissions to use this command',
@@ -218,20 +219,20 @@ export class App {
 	public readonly player: Player;
 	public readonly commands: Map<string, Command>;
 	public readonly events: Map<string, ClientEvent<any>>;
-	public readonly database: Database;
+	public readonly leaderboardRepo: LeaderboardRepository;
 
 	constructor(
 		client: discord.Client,
-		database: Database,
 		player: Player,
 		commands: Map<string, Command>,
 		events: Map<string, ClientEvent<any>>,
+		leaderboardRepo: LeaderboardRepository,
 	) {
 		this.client = client;
-		this.database = database;
 		this.player = player;
 		this.commands = commands;
 		this.events = events;
+		this.leaderboardRepo = leaderboardRepo;
 	}
 
 	public init(): void {
@@ -250,5 +251,28 @@ export class App {
 
 	public login(token: string): Promise<string> {
 		return this.client.login(token);
+	}
+
+	public getLeaderboard(guildId: string): Promise<Leaderboard> {
+		return this.leaderboardRepo.getLeaderboard(guildId);
+	}
+
+	public async fetchUser(userId: string): Promise<discord.User | null> {
+		try {
+			return await this.client.users.fetch(userId, { cache: true });
+		} catch {
+			return null;
+		}
+	}
+
+	public async updateLeaderboard(guildId: string, userId: string): Promise<void> {
+		const leaderboard = await this.leaderboardRepo.getLeaderboard(guildId);
+		const entry = leaderboard.entries.find((entry) => entry.userId === userId);
+
+		if (entry) {
+			entry.isMember = false;
+		}
+
+		await this.leaderboardRepo.updateLeaderboard(leaderboard);
 	}
 }
