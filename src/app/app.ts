@@ -19,7 +19,7 @@ export enum Requirements {
 	QueueRequired = 'queueRequired',
 }
 
-export interface NamedEvent {
+export interface BaseEvent {
 	name: string;
 	callback: Function;
 }
@@ -100,7 +100,7 @@ export class MessageBuilder {
 	}
 }
 
-export class ClientEvent<EventName extends keyof discord.ClientEvents> implements NamedEvent {
+export class ClientEvent<EventName extends keyof discord.ClientEvents> implements BaseEvent {
 	public readonly name: EventName;
 	public readonly callback: ClientEventCallback<EventName>;
 
@@ -153,7 +153,7 @@ export class SubcommandManager {
 		}
 	}
 
-	private getPath(interaction: discord.CommandInteraction) {
+	private getPath(interaction: discord.CommandInteraction): string {
 		const options = interaction.options as discord.CommandInteractionOptionResolver;
 		const name = interaction.commandName;
 		const group = options.getSubcommandGroup();
@@ -178,7 +178,7 @@ export class Command extends BaseCommand {
 		this.subcommands = options.subcommands;
 	}
 
-	protected beforeCallback(app: App, interaction: discord.CommandInteraction, baseCommand: BaseCommand) {
+	protected beforeCallback(app: App, interaction: discord.CommandInteraction, baseCommand: BaseCommand): void {
 		if (this.subcommands.subcommands.size <= 0) {
 			return;
 		}
