@@ -14,11 +14,7 @@ export default new ClientEvent({
         const member = interaction.member as GuildMember;
         const voiceChannel = member.voice.channel as VoiceChannel;
 
-        if (
-            !command ||
-            !guild ||
-            !interaction.member
-        ) {
+        if (!command || !guild || !interaction.member) {
             return;
         }
 

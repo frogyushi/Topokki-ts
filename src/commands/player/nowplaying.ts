@@ -1,12 +1,6 @@
 import { APIEmbedField, EmbedBuilder, Guild, SlashCommandBuilder } from 'discord.js';
+import { Command, PermissionsManager, Requirements, RequirementsManager, SubcommandManager } from '../../app/app';
 import { Queue } from 'distube';
-import {
-    Command,
-    PermissionsManager,
-    Requirements,
-    RequirementsManager,
-    SubcommandManager
-} from '../../app/app';
 
 export default new Command({
     requirements: new RequirementsManager(
@@ -15,7 +9,7 @@ export default new Command({
         Requirements.VoiceChannelRequired,
     ),
 
-    perms: new PermissionsManager(),
+    permissions: new PermissionsManager(),
 
     subcommands: new SubcommandManager(),
 
@@ -29,33 +23,31 @@ export default new Command({
         const song = queue.songs[0];
         const nextUp = queue.songs[1];
 
-        const embedFields: APIEmbedField[] = [
-            {
-                name: 'Artist',
-                value: song.uploader.name!,
-                inline: true,
-            },
-            {
-                name: 'Duration',
-                value: `${queue.formattedCurrentTime}/${song.formattedDuration}`,
-                inline: true,
-            },
-            {
-                name: 'Requested by',
-                value: song.user!.tag,
-                inline: true,
-            },
-            {
-                name: 'Next up',
-                value: nextUp?.name || '-',
-                inline: true,
-            }
-        ];
-
         const embed = new EmbedBuilder()
             .setTitle(song.name!)
-            .setFields(embedFields)
-            .setTimestamp();
+            .setTimestamp()
+            .setFields([
+                {
+                    name: 'Artist',
+                    value: song.uploader.name!,
+                    inline: true,
+                },
+                {
+                    name: 'Duration',
+                    value: `${queue.formattedCurrentTime}/${song.formattedDuration}`,
+                    inline: true,
+                },
+                {
+                    name: 'Requested by',
+                    value: song.user!.tag,
+                    inline: true,
+                },
+                {
+                    name: 'Next up',
+                    value: nextUp?.name || '-',
+                    inline: true,
+                }
+            ]);
 
         interaction.reply({ embeds: [embed] });
     }

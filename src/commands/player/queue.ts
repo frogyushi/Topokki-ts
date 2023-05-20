@@ -1,19 +1,13 @@
-import { Queue } from 'distube';
 import { SlashCommandBuilder, Guild, EmbedBuilder } from 'discord.js';
-import {
-    Command,
-    PermissionsManager,
-    Requirements,
-    RequirementsManager,
-    SubcommandManager
-} from '../../app/app';
+import { Command, PermissionsManager, Requirements, RequirementsManager, SubcommandManager } from '../../app/app';
+import { Queue } from 'distube';
 
 export default new Command({
     requirements: new RequirementsManager(
         Requirements.SameVoiceChannelRequired
     ),
 
-    perms: new PermissionsManager(),
+    permissions: new PermissionsManager(),
 
     subcommands: new SubcommandManager(),
 

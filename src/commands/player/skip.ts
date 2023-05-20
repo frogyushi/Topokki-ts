@@ -1,12 +1,6 @@
 import { Guild, SlashCommandBuilder } from 'discord.js';
+import { Command, PermissionsManager, Requirements, RequirementsManager, SubcommandManager } from '../../app/app';
 import { Queue } from 'distube';
-import {
-    Command,
-    PermissionsManager,
-    Requirements,
-    RequirementsManager,
-    SubcommandManager
-} from '../../app/app';
 
 export default new Command({
     requirements: new RequirementsManager(
@@ -15,7 +9,7 @@ export default new Command({
         Requirements.SameVoiceChannelRequired
     ),
 
-    perms: new PermissionsManager(),
+    permissions: new PermissionsManager(),
 
     subcommands: new SubcommandManager(),
 
@@ -27,7 +21,9 @@ export default new Command({
         const guild = interaction.guild as Guild;
         const queue = app.player.distube.getQueue(guild.id) as Queue;
 
-        queue.songs.length <= 1 ? queue.stop() : queue.skip();
+        queue.songs.length <= 1
+            ? queue.stop()
+            : queue.skip();
 
         interaction.reply('The current song has been skipped');
     }

@@ -53,6 +53,7 @@ const commandsMap = registerCommands(
     commands.skip,
     commands.stop,
     commands.leaderboard,
+    commands.birthday,
 );
 
 const clientEventsMap = registerEvents<ClientEvent<any>>(
@@ -60,7 +61,7 @@ const clientEventsMap = registerEvents<ClientEvent<any>>(
     events.interactionCreate,
 );
 
-connect(process.env.MONGO_URI!, { keepAlive: true });
+connect(process.env.MONGO_URI!);
 
 const leaderboardRepo = new LeaderboardRepository();
 

@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
-import LeaderboardModel from '../schemas/leaderboard';
+import LeaderboardModel from '../models/leaderboard';
 import { Leaderboard, LeaderboardEntry } from '../app/models/leaderboard';
 
 export default class LeaderboardRepository {
+    constructor() { }
+
     public async getLeaderboard(guildId: string): Promise<Leaderboard> {
         const leaderboardEntries = await (LeaderboardModel as mongoose.Model<any>)
             .find({ guildId })

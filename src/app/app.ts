@@ -12,6 +12,9 @@ export enum MessageResponses {
 	SameVoiceChannelRequired = 'You must be in the same voice channel as me to use this command',
 	QueueRequired = 'There is currently no queue available to use this command',
 	UnknownError = 'Something went wrong, try again',
+	MemberNotFoundError = 'This member cannot be found in the server',
+	NoOptionsError = 'No options were provided',
+	SettingsUpdateSuccess = 'Settings updated successfully',
 }
 
 export enum Requirements {
@@ -32,7 +35,7 @@ export interface ClientEventOptions<EventName extends keyof discord.ClientEvents
 
 export interface BaseCommandOptions {
 	readonly requirements: RequirementsManager;
-	readonly perms: PermissionsManager;
+	readonly permissions: PermissionsManager;
 	readonly callback?: CommandCallback;
 }
 
@@ -42,7 +45,7 @@ export interface CommandOptions extends BaseCommandOptions {
 }
 
 export interface SubcommandOptions extends BaseCommandOptions {
-	readonly data: SubcommandBuilder;
+	readonly route: string;
 }
 
 export interface MessageBuilderOptions extends discord.MessageReplyOptions {
@@ -118,12 +121,12 @@ export class BaseCommand {
 
 	constructor(options: BaseCommandOptions) {
 		this.requirements = options.requirements;
-		this.permissions = options.perms.permissions;
-		this.callback = (app, interaction) => this._callback(app, interaction, this, options.callback);
+		this.permissions = options.permissions.permissions;
+		this.callback = (app, interaction) => this.callbackOverride(app, interaction, this, options.callback);
 	}
 
-	protected _callback(app: App, interaction: discord.CommandInteraction, baseCommand: BaseCommand, callback?: CommandCallback): void {
-		const perms: boolean = this.checkPermissions(interaction);
+	protected callbackOverride(app: App, interaction: discord.CommandInteraction, baseCommand: BaseCommand, callback?: CommandCallback): void {
+		const perms: boolean = this.checkPermissions(interaction.member as discord.GuildMember);
 
 		if (!perms) {
 			new MessageBuilder()
@@ -134,14 +137,18 @@ export class BaseCommand {
 			return;
 		}
 
-		this.beforeCallback(app, interaction, baseCommand);
-		callback?.(app, interaction, baseCommand);
+		try {
+			this.beforeCallback(app, interaction, baseCommand);
+			callback?.(app, interaction, baseCommand);
+		} catch (err) {
+			console.error(err);
+		}
 	}
 
 	protected beforeCallback(app: App, interaction: discord.CommandInteraction, baseCommand: BaseCommand): void { }
 
-	protected checkPermissions(interaction: discord.CommandInteraction): boolean {
-		return (interaction.member as discord.GuildMember).permissions.has(this.permissions);
+	public checkPermissions(member: discord.GuildMember): boolean {
+		return member.permissions.has(this.permissions);
 	}
 }
 
@@ -149,8 +156,8 @@ export class SubcommandManager {
 	public readonly subcommands: Map<string, Subcommand> = new Map();
 
 	constructor(...subcommands: Subcommand[]) {
-		for (const sub of subcommands) {
-			this.subcommands.set(sub.getPath(), sub);
+		for (const subcommand of subcommands) {
+			this.subcommands.set(subcommand.getPath(), subcommand);
 		}
 	}
 
@@ -201,16 +208,16 @@ export class Command extends BaseCommand {
 }
 
 export class Subcommand extends BaseCommand {
-	public readonly data: SubcommandBuilder;
+	public readonly route: string;
 
 	constructor(options: SubcommandOptions) {
 		super(options);
 
-		this.data = options.data;
+		this.route = options.route;
 	}
 
 	public getPath(): string {
-		return this.data.route!;
+		return this.route;
 	}
 }
 
@@ -219,20 +226,20 @@ export class App {
 	public readonly player: Player;
 	public readonly commands: Map<string, Command>;
 	public readonly events: Map<string, ClientEvent<any>>;
-	public readonly leaderboardRepo: LeaderboardRepository;
+	public readonly leaderboardRepository: LeaderboardRepository;
 
 	constructor(
 		client: discord.Client,
 		player: Player,
 		commands: Map<string, Command>,
 		events: Map<string, ClientEvent<any>>,
-		leaderboardRepo: LeaderboardRepository,
+		leaderboardRepository: LeaderboardRepository,
 	) {
 		this.client = client;
 		this.player = player;
 		this.commands = commands;
 		this.events = events;
-		this.leaderboardRepo = leaderboardRepo;
+		this.leaderboardRepository = leaderboardRepository;
 	}
 
 	public init(): void {
@@ -254,7 +261,7 @@ export class App {
 	}
 
 	public getLeaderboard(guildId: string): Promise<Leaderboard> {
-		return this.leaderboardRepo.getLeaderboard(guildId);
+		return this.leaderboardRepository.getLeaderboard(guildId);
 	}
 
 	public async fetchUser(userId: string): Promise<discord.User | null> {
@@ -266,13 +273,13 @@ export class App {
 	}
 
 	public async updateLeaderboard(guildId: string, userId: string): Promise<void> {
-		const leaderboard = await this.leaderboardRepo.getLeaderboard(guildId);
+		const leaderboard = await this.leaderboardRepository.getLeaderboard(guildId);
 		const entry = leaderboard.entries.find((entry) => entry.userId === userId);
 
 		if (entry) {
 			entry.isMember = false;
 		}
 
-		await this.leaderboardRepo.updateLeaderboard(leaderboard);
+		await this.leaderboardRepository.updateLeaderboard(leaderboard);
 	}
 }

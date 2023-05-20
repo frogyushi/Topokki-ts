@@ -1,20 +1,16 @@
 import { SlashCommandBuilder } from 'discord.js';
-import {
-    Command,
-    PermissionsManager,
-    RequirementsManager,
-    SubcommandManager
-} from '../../app/app';
-
-import leaderboard from './leaderboard/show';
+import { Command, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
+import remove from './leaderboard/remove';
+import view from './leaderboard/view';
 
 export default new Command({
     requirements: new RequirementsManager(),
 
-    perms: new PermissionsManager(),
+    permissions: new PermissionsManager(),
 
     subcommands: new SubcommandManager(
-        leaderboard,
+        view,
+        remove,
     ),
 
     data: new SlashCommandBuilder()
@@ -30,7 +26,7 @@ export default new Command({
             )
         )
         .addSubcommand((option) => option
-            .setName('show')
+            .setName('view')
             .setDescription('Displays the leaderboard')
         ),
 })

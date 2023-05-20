@@ -1,18 +1,12 @@
 import { CommandInteractionOptionResolver, SlashCommandBuilder } from 'discord.js';
-import {
-    Command,
-    PermissionsManager,
-    Requirements,
-    RequirementsManager,
-    SubcommandManager
-} from '../../app/app';
+import { Command, PermissionsManager, Requirements, RequirementsManager, SubcommandManager } from '../../app/app';
 
 export default new Command({
     requirements: new RequirementsManager(
         Requirements.VoiceChannelRequired
     ),
 
-    perms: new PermissionsManager(),
+    permissions: new PermissionsManager(),
 
     subcommands: new SubcommandManager(),
 

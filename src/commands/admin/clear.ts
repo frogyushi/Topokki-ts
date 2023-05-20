@@ -1,15 +1,10 @@
 import { Command, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
-import {
-    SlashCommandBuilder,
-    CommandInteractionOptionResolver,
-    PermissionFlagsBits,
-    TextChannel,
-} from 'discord.js';
+import { SlashCommandBuilder, CommandInteractionOptionResolver, PermissionFlagsBits, TextChannel } from 'discord.js';
 
 export default new Command({
     requirements: new RequirementsManager(),
 
-    perms: new PermissionsManager(),
+    permissions: new PermissionsManager(),
 
     subcommands: new SubcommandManager(),
 

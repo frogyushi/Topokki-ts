@@ -6,6 +6,7 @@ import queue from './player/queue';
 import skip from './player/skip';
 import stop from './player/stop';
 import leaderboard from './misc/leaderboard';
+import birthday from './misc/birthday';
 
 export default {
     clear,
@@ -16,4 +17,5 @@ export default {
     skip,
     stop,
     leaderboard,
+    birthday,
 }

@@ -8,6 +8,6 @@ const LeaderboardSchema = new mongoose.Schema({
     lastActive: { type: String },
 });
 
-const Leaderboard = mongoose.model('Leaderboard', LeaderboardSchema);
+const LeaderboardModel = mongoose.model('Leaderboard', LeaderboardSchema);
 
-export default Leaderboard;
+export default LeaderboardModel;

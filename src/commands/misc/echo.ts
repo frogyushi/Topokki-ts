@@ -1,10 +1,10 @@
-import { Command, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
-import { SlashCommandBuilder, CommandInteractionOptionResolver } from 'discord.js';
+import { Command, MessageBuilder, MessageResponses, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
+import { SlashCommandBuilder, CommandInteractionOptionResolver, GuildMember, PermissionFlagsBits } from 'discord.js';
 
 export default new Command({
     requirements: new RequirementsManager(),
 
-    perms: new PermissionsManager(),
+    permissions: new PermissionsManager(),
 
     subcommands: new SubcommandManager(),
 
@@ -22,16 +22,27 @@ export default new Command({
         ),
 
     callback: async (app, interaction) => {
+        const member = interaction.member as GuildMember;
         const options = interaction.options as CommandInteractionOptionResolver;
         const message = options.getString('message')!;
         const hidden = options.getBoolean('hidden') || false;
 
         if (hidden) {
+            if (!member.permissions.has(PermissionFlagsBits.Administrator)) {
+                new MessageBuilder()
+                    .setContent(MessageResponses.PermissionError)
+                    .setEphemeral(true)
+                    .send(interaction);
+
+                return;
+            }
+
             await interaction.deferReply();
             await interaction.deleteReply();
-            await interaction.channel!.send(message);
+
+            interaction.channel!.send(message);
         }
 
-        await interaction.reply(message);
+        interaction.reply(message);
     }
 })
