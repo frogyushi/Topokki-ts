@@ -12,7 +12,9 @@ export default class LeaderboardRepository {
             .limit(10)
             .exec();
 
-        const entries = leaderboardEntries.map((entry) => new LeaderboardEntry(entry.userId, entry.points));
+        const entries = leaderboardEntries.map((entry) => {
+            return new LeaderboardEntry(entry.userId, entry.points);
+        })
 
         return new Leaderboard(guildId, entries);
     }

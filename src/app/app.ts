@@ -14,7 +14,7 @@ export enum MessageResponses {
 	QueueRequired = 'There is currently no queue available to use this command',
 	UnknownError = 'Something went wrong, try again',
 	MemberNotFoundError = 'This member cannot be found in the server',
-	NoOptionsError = 'No options were provided',
+	NoOptionsError = 'There were no options provided',
 	SettingsUpdateSuccess = 'Settings updated successfully',
 }
 

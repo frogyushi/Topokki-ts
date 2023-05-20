@@ -19,7 +19,7 @@ export default new Subcommand({
         });
 
         if (!Object.keys(options).length) {
-            interaction.reply('Please provide the options to update');
+            interaction.reply(MessageResponses.NoOptionsError);
             return;
         }
 
