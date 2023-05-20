@@ -41,6 +41,7 @@
 	"devDependencies": {
 		"@types/micromatch": "^4.0.2",
 		"@types/node": "^18.15.11",
+		"@types/node-cron": "^3.0.7",
 		"@types/yt-search": "^2.3.2",
 		"nodemon": "^2.0.22",
 		"rimraf": "^5.0.0",

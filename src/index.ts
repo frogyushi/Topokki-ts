@@ -1,11 +1,12 @@
 import 'dotenv/config';
-import { registerCommands, registerEvents } from './helpers';
+import { registerCommands, registerCrons, registerEvents } from './helpers';
 import { GatewayIntentBits, Client } from 'discord.js';
 import { App, ClientEvent } from './app/app';
 import { DisTube } from 'distube';
 import { connect } from 'mongoose';
 import { Player, DistubeEvent, PlayerEvent } from './app/player';
 import LeaderboardRepository from './repositories/leaderboard';
+import crons from './cronjobs/index';
 import commands from './commands/index';
 import events from './events/index';
 
@@ -44,6 +45,10 @@ const player = new Player(
 
 player.init();
 
+const cronsMap = registerCrons(
+    crons.birthday,
+)
+
 const commandsMap = registerCommands(
     commands.echo,
     commands.clear,
@@ -68,6 +73,7 @@ const leaderboardRepo = new LeaderboardRepository();
 const app = new App(
     client,
     player,
+    cronsMap,
     commandsMap,
     clientEventsMap,
     leaderboardRepo,

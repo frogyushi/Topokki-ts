@@ -1,5 +1,6 @@
+import { schedule } from 'node-cron';
 import discord from 'discord.js';
-import { ClientEventCallback, CommandCallback, CommandBuilder } from '../types';
+import { ClientEventCallback, CommandCallback, CommandBuilder, CronCallback } from '../types';
 import { Player } from './player';
 import { cleanArray } from '../helpers';
 import { Leaderboard } from './models/leaderboard';
@@ -221,9 +222,28 @@ export class Subcommand extends BaseCommand {
 	}
 }
 
+export interface CronOptions {
+	name: string;
+	schedule: string;
+	callback: CronCallback;
+}
+
+export class Cron {
+	public readonly name: string;
+	public readonly schedule: string;
+	public readonly callback: CronCallback;
+
+	constructor(options: CronOptions) {
+		this.name = options.name;
+		this.schedule = options.schedule;
+		this.callback = options.callback;
+	}
+}
+
 export class App {
 	public readonly client: discord.Client;
 	public readonly player: Player;
+	public readonly crons: Map<string, Cron>;
 	public readonly commands: Map<string, Command>;
 	public readonly events: Map<string, ClientEvent<any>>;
 	public readonly leaderboardRepository: LeaderboardRepository;
@@ -231,24 +251,33 @@ export class App {
 	constructor(
 		client: discord.Client,
 		player: Player,
+		crons: Map<string, Cron>,
 		commands: Map<string, Command>,
 		events: Map<string, ClientEvent<any>>,
 		leaderboardRepository: LeaderboardRepository,
 	) {
 		this.client = client;
 		this.player = player;
+		this.crons = crons;
 		this.commands = commands;
 		this.events = events;
 		this.leaderboardRepository = leaderboardRepository;
 	}
 
 	public init(): void {
+		this.registerCrons(this.crons);
 		this.registerEvents(this.events);
 	}
 
 	private registerEvents(events: Map<string, ClientEvent<any>>): void {
-		for (const event of events.values()) {
-			this.client.on(event.name, (...args) => event.callback(this, ...args));
+		for (const { name, callback } of events.values()) {
+			this.client.on(name, (...args) => callback(this, ...args));
+		}
+	}
+
+	private registerCrons(crons: Map<string, Cron>): void {
+		for (const cron of crons.values()) {
+			schedule(cron.schedule, () => cron.callback(this, cron));
 		}
 	}
 
@@ -267,6 +296,31 @@ export class App {
 	public async fetchUser(userId: string): Promise<discord.User | null> {
 		try {
 			return await this.client.users.fetch(userId, { cache: true });
+		} catch {
+			return null;
+		}
+	}
+
+	public async fetchMember(userId: string, guildId: string): Promise<discord.GuildMember | null> {
+		try {
+			const guild = await this.client.guilds.fetch(guildId);
+			return await guild.members.fetch(userId);
+		} catch {
+			return null;
+		}
+	}
+
+	public async fetchGuild(guildId: string) {
+		try {
+			return await this.client.guilds.fetch(guildId);
+		} catch {
+			return null;
+		}
+	}
+
+	public async fetchChannel(channelId: string) {
+		try {
+			return await this.client.channels.fetch(channelId);
 		} catch {
 			return null;
 		}

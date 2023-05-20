@@ -1,7 +1,6 @@
-import discord from 'discord.js';
-import { AppClientEvent } from '../../app/app';
+import { ClientEvent } from '../../app/app';
 
-export default new AppClientEvent({
+export default new ClientEvent({
     name: 'guildMemberRemove',
 
     callback: async (app, member) => {
