@@ -9,7 +9,7 @@ export default new Subcommand({
 
     route: 'birthday.view',
 
-    async callback(app, interaction) {
+    callback: async (app, interaction) => {
         const member = interaction.options.getMember('member') as GuildMember;
 
         const birthday = await BirthdayModel.findOne({

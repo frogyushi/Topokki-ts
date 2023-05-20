@@ -10,7 +10,7 @@ export default new Subcommand({
 
     route: 'birthday.channel',
 
-    async callback(app, interaction) {
+    callback: async (app, interaction) => {
         const interactionOptions = interaction.options as CommandInteractionOptionResolver;
 
         const options = cleanObject({

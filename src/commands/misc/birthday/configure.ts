@@ -13,7 +13,7 @@ export default new Subcommand({
 
     route: 'birthday.configure',
 
-    async callback(app, interaction) {
+    callback: async (app, interaction) => {
         const interactionOptions = interaction.options as CommandInteractionOptionResolver;
         const member = interaction.options.getMember('member') as GuildMember;
 
