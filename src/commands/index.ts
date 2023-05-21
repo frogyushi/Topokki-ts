@@ -7,6 +7,7 @@ import skip from './player/skip';
 import stop from './player/stop';
 import leaderboard from './misc/leaderboard';
 import birthday from './misc/birthday';
+import voice from './admin/voice';
 
 export default {
     clear,
@@ -18,4 +19,5 @@ export default {
     stop,
     leaderboard,
     birthday,
+    voice,
 }

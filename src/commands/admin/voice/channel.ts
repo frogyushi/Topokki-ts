@@ -1,33 +1,46 @@
 import { CommandInteractionOptionResolver } from 'discord.js';
 import { MessageBuilder, MessageResponses, PermissionsManager, RequirementsManager, Subcommand } from '../../../app/app';
 import { cleanObject } from '../../../helpers';
-import BirthdayChannelModel from '../../../models/birthdayChannel';
+import VoiceEntrypointModel from '../../../models/voiceEntrypoint';
 
 export default new Subcommand({
     requirements: new RequirementsManager(),
 
     permissions: new PermissionsManager(),
 
-    route: 'birthday.channel',
+    route: 'voice.channel',
 
     callback: async (app, interaction) => {
         const interactionOptions = interaction.options as CommandInteractionOptionResolver;
 
+        const voiceModel = await VoiceEntrypointModel.findOne({
+            guildId: interaction.guildId,
+        });
+
         const options = cleanObject({
             isEnabled: interactionOptions.getBoolean('is_enabled'),
-            channelId: interactionOptions.getChannel('text_channel'),
+            channelId: interactionOptions.getChannel('voice_channel'),
         });
 
         if (!Object.keys(options).length) {
             new MessageBuilder()
                 .setContent(MessageResponses.NoOptionsError)
                 .setEphemeral(true)
-                .send(interaction);
+                .send(interaction)
 
             return;
         }
 
-        await BirthdayChannelModel.findOneAndUpdate(
+        if (!voiceModel?.channelId && !options?.channelId) {
+            new MessageBuilder()
+                .setContent('Unable to update setting since no voice channel has been set')
+                .setEphemeral(true)
+                .send(interaction)
+
+            return;
+        }
+
+        await VoiceEntrypointModel.findOneAndUpdate(
             { guildId: interaction.guildId },
             { $set: options },
             {

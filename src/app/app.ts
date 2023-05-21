@@ -1,10 +1,11 @@
 import { schedule } from 'node-cron';
-import discord from 'discord.js';
+import discord, { VoiceChannel } from 'discord.js';
 import { ClientEventCallback, CommandCallback, CommandBuilder, CronCallback } from '../types';
 import { Player } from './player';
 import { cleanArray } from '../helpers';
 import { Leaderboard } from './models/leaderboard';
 import LeaderboardRepository from '../repositories/leaderboard';
+import { VoiceChannelRepository } from '../repositories/voiceChannel';
 
 export enum MessageResponses {
 	PermissionError = 'You do not have the necessary permissions to use this command',
@@ -22,6 +23,12 @@ export enum Requirements {
 	VoiceChannelRequired = 'voiceChannelRequired',
 	SameVoiceChannelRequired = 'SameVoiceChannelRequired',
 	QueueRequired = 'queueRequired',
+}
+
+export interface CreateVoiceChannelOptions {
+	name: string;
+	parent?: discord.CategoryChannel | null;
+	userLimit: number;
 }
 
 export interface BaseEvent {
@@ -189,6 +196,11 @@ export class Command extends BaseCommand {
 
 	protected beforeCallback(app: App, interaction: discord.CommandInteraction, baseCommand: BaseCommand): void {
 		if (this.subcommands.subcommands.size <= 0) {
+			new MessageBuilder()
+				.setContent('There was an error while loading the subcommand')
+				.setEphemeral(true)
+				.send(interaction);
+
 			return;
 		}
 
@@ -247,6 +259,7 @@ export class App {
 	public readonly commands: Map<string, Command>;
 	public readonly events: Map<string, ClientEvent<any>>;
 	public readonly leaderboardRepository: LeaderboardRepository;
+	public readonly voiceChannelRepository: VoiceChannelRepository;
 
 	constructor(
 		client: discord.Client,
@@ -255,6 +268,7 @@ export class App {
 		commands: Map<string, Command>,
 		events: Map<string, ClientEvent<any>>,
 		leaderboardRepository: LeaderboardRepository,
+		voiceChannelRepository: VoiceChannelRepository,
 	) {
 		this.client = client;
 		this.player = player;
@@ -262,6 +276,7 @@ export class App {
 		this.commands = commands;
 		this.events = events;
 		this.leaderboardRepository = leaderboardRepository;
+		this.voiceChannelRepository = voiceChannelRepository;
 	}
 
 	public init(): void {
@@ -335,5 +350,73 @@ export class App {
 		}
 
 		await this.leaderboardRepository.updateLeaderboard(leaderboard);
+	}
+
+	public async createVoiceChannel(guildId: string, options: CreateVoiceChannelOptions) {
+		const guild = await this.fetchGuild(guildId);
+
+		return guild?.channels.create({
+			type: discord.ChannelType.GuildVoice,
+			...options
+		});
+	}
+
+	public async onVoiceChannelJoin(guildId: string, userId: string, voiceChannelId: string) {
+		const entrypoint = await this.voiceChannelRepository.getVoiceChannelEntrypoint(guildId);
+		const member = await this.fetchMember(userId, guildId);
+
+		if (!entrypoint?.channelId) {
+			return;
+		}
+
+		const voiceChannelEntrypoint = await this.fetchChannel(entrypoint.channelId);
+
+		if (voiceChannelEntrypoint?.type !== discord.ChannelType.GuildVoice) {
+			return;
+		}
+
+		if (entrypoint.channelId === voiceChannelId) {
+			const voicePreferences = await this.voiceChannelRepository.getVoicePreferences(guildId, userId);
+
+			const newVoiceChannel = await this.createVoiceChannel(guildId, {
+				name: voicePreferences?.name || `${member?.user.username}'s channel`,
+				parent: voiceChannelEntrypoint.parent,
+				userLimit: voicePreferences?.maxSlots || 0,
+			});
+
+			if (newVoiceChannel) {
+				this.voiceChannelRepository.createVoiceChannel(guildId, newVoiceChannel.id, userId);
+				member?.voice.setChannel(newVoiceChannel);
+			}
+		}
+	}
+
+	public async onVoiceChannelLeave(guildId: string, userId: string, voiceChannelId: string) {
+		const voiceChannel = await this.fetchChannel(voiceChannelId);
+
+		if (!voiceChannel || voiceChannel.type !== discord.ChannelType.GuildVoice || voiceChannel.members.size > 0) {
+			return;
+		}
+
+		const storedVoiceChannel = await this.voiceChannelRepository.getVoiceChannel(guildId, voiceChannelId);
+
+		if (storedVoiceChannel && storedVoiceChannel.channelId === voiceChannelId) {
+			await voiceChannel.delete();
+			await storedVoiceChannel.deleteOne();
+		}
+	}
+
+	public async clearEmptyStoredVoiceChannels() {
+		const storedVoiceChannels = await this.voiceChannelRepository.getVoiceChannels();
+
+		for (const storedVoiceChannel of storedVoiceChannels) {
+			const { channelId } = storedVoiceChannel;
+			const voiceChannel = await this.fetchChannel(channelId) as discord.VoiceChannel;
+
+			if (voiceChannel && voiceChannel.members.size === 0) {
+				voiceChannel.delete();
+				storedVoiceChannel.deleteOne();
+			}
+		}
 	}
 }

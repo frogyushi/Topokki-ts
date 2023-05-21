@@ -1,5 +1,5 @@
 import { GuildMember } from 'discord.js';
-import { MessageResponses, PermissionsManager, RequirementsManager, Subcommand } from '../../../app/app';
+import { MessageBuilder, MessageResponses, PermissionsManager, RequirementsManager, Subcommand } from '../../../app/app';
 import BirthdayModel from '../../../models/birthday';
 
 export default new Subcommand({
@@ -12,25 +12,33 @@ export default new Subcommand({
     callback: async (app, interaction) => {
         const member = interaction.options.getMember('member') as GuildMember;
 
-        const birthday = await BirthdayModel.findOne({
+        const birthdayModel = await BirthdayModel.findOne({
             guildId: interaction.guildId,
             userId: member.id
         });
 
-        if (!birthday || !birthday.date) {
-            interaction.reply('This member has not set their birthday');
+        if (!birthdayModel || !birthdayModel.date) {
+            new MessageBuilder()
+                .setContent('This member has not set their birthday')
+                .setEphemeral(true)
+                .send(interaction);
+
             return;
         }
 
-        const user = await app.fetchUser(birthday.userId);
+        const user = await app.fetchUser(birthdayModel.userId);
 
         if (!user) {
-            interaction.reply(MessageResponses.MemberNotFoundError);
+            new MessageBuilder()
+                .setContent(MessageResponses.MemberNotFoundError)
+                .setEphemeral(true)
+                .send(interaction);
+
             return;
         }
 
-        const month = birthday.date.toLocaleString('default', { month: 'long' });
-        const day = birthday.date.getDate();
+        const month = birthdayModel.date.toLocaleString('default', { month: 'long' });
+        const day = birthdayModel.date.getDate();
 
         interaction.reply(`${user.username}'s birthday is on \`${month} ${day}\``);
     },

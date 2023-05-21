@@ -9,6 +9,7 @@ import LeaderboardRepository from './repositories/leaderboard';
 import crons from './cronjobs/index';
 import commands from './commands/index';
 import events from './events/index';
+import { VoiceChannelRepository } from './repositories/voiceChannel';
 
 const client = new Client({
     intents: [
@@ -29,6 +30,7 @@ const distube = new DisTube(client);
 
 const distubeEventsMap = registerEvents<DistubeEvent<any>>(
     events.addSong,
+    events.addList,
     events.distubeError,
 );
 
@@ -59,16 +61,20 @@ const commandsMap = registerCommands(
     commands.stop,
     commands.leaderboard,
     commands.birthday,
+    commands.voice,
 );
 
 const clientEventsMap = registerEvents<ClientEvent<any>>(
     events.ready,
     events.interactionCreate,
+    events.voiceStateUpdate,
+    events.guildMemberRemove,
 );
 
 connect(process.env.MONGO_URI!);
 
-const leaderboardRepo = new LeaderboardRepository();
+const leaderboardRepository = new LeaderboardRepository();
+const voiceChannelRepository = new VoiceChannelRepository();
 
 const app = new App(
     client,
@@ -76,7 +82,8 @@ const app = new App(
     cronsMap,
     commandsMap,
     clientEventsMap,
-    leaderboardRepo,
+    leaderboardRepository,
+    voiceChannelRepository,
 );
 
 app.login(process.env.CLIENT_TOKEN!);

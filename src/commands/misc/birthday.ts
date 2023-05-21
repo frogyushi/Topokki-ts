@@ -1,6 +1,6 @@
 import { ChannelType, SlashCommandBuilder } from 'discord.js';
 import { Command, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
-import configure from './birthday/configure';
+import set from './birthday/set';
 import channel from './birthday/channel';
 import view from './birthday/view';
 
@@ -11,7 +11,7 @@ export default new Command({
 
     subcommands: new SubcommandManager(
         view,
-        configure,
+        set,
         channel,
     ),
 
@@ -19,8 +19,8 @@ export default new Command({
         .setName('birthday')
         .setDescription('Manage your birthday information')
         .addSubcommand((subcommand) => subcommand
-            .setName('configure')
-            .setDescription('Configure your birthday settings')
+            .setName('set')
+            .setDescription('Set your birthday')
             .addStringOption((option) => option
                 .setName('date')
                 .setDescription('Set your birthday date')
