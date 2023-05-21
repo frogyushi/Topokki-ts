@@ -3,7 +3,7 @@
         "target": "es2015",
         "module": "commonjs",
         "lib": [
-            "es6"
+            "ES2020"
         ],
         "skipLibCheck": true,
         "allowJs": true,

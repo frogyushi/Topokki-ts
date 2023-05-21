@@ -1,11 +1,11 @@
 import { schedule } from 'node-cron';
-import discord, { VoiceChannel } from 'discord.js';
+import discord from 'discord.js';
 import { ClientEventCallback, CommandCallback, CommandBuilder, CronCallback } from '../types';
 import { Player } from './player';
 import { cleanArray } from '../helpers';
 import { Leaderboard } from './models/leaderboard';
 import LeaderboardRepository from '../repositories/leaderboard';
-import { VoiceChannelRepository } from '../repositories/voiceChannel';
+import VoiceChannelRepository from '../repositories/voiceChannel';
 
 export enum MessageResponses {
 	PermissionError = 'You do not have the necessary permissions to use this command',
@@ -196,11 +196,6 @@ export class Command extends BaseCommand {
 
 	protected beforeCallback(app: App, interaction: discord.CommandInteraction, baseCommand: BaseCommand): void {
 		if (this.subcommands.subcommands.size <= 0) {
-			new MessageBuilder()
-				.setContent('There was an error while loading the subcommand')
-				.setEphemeral(true)
-				.send(interaction);
-
 			return;
 		}
 

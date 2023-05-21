@@ -2,7 +2,7 @@ import VoiceChannelModel from '../models/voiceChannel';
 import VoiceEntrypointModel from '../models/voiceEntrypoint';
 import VoicePreferencesModel from '../models/voicePreferences';
 
-export class VoiceChannelRepository {
+export default class VoiceChannelRepository {
     constructor() { }
 
     public async createVoiceChannel(guildId: string, channelId: string, ownerId: string): Promise<void> {
