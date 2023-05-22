@@ -1,6 +1,6 @@
+import LeaderboardModel from '../../../models/leaderboard';
 import { GuildMember, PermissionFlagsBits } from 'discord.js';
 import { PermissionsManager, RequirementsManager, Subcommand } from '../../../app/app';
-import LeaderboardModel from '../../../models/leaderboard';
 
 export default new Subcommand({
     requirements: new RequirementsManager(),
@@ -21,4 +21,4 @@ export default new Subcommand({
 
         interaction.reply('Leaderboard entry has been successfully removed');
     }
-})
+});

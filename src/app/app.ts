@@ -1,11 +1,16 @@
-import { schedule } from 'node-cron';
 import discord from 'discord.js';
-import { ClientEventCallback, CommandCallback, CommandBuilder, CronCallback } from '../types';
-import { Player } from './player';
-import { cleanArray } from '../helpers';
-import { Leaderboard } from './models/leaderboard';
 import LeaderboardRepository from '../repositories/leaderboard';
 import VoiceChannelRepository from '../repositories/voiceChannel';
+import { cleanArray } from '../helpers';
+import {
+	ClientEventCallback,
+	CommandBuilder,
+	CommandCallback,
+	CronCallback
+} from '../types';
+import { Leaderboard } from './models/leaderboard';
+import { Player } from './player';
+import { schedule } from 'node-cron';
 
 export enum MessageResponses {
 	PermissionError = 'You do not have the necessary permissions to use this command',
@@ -86,7 +91,9 @@ export class RequirementsManager {
 	}
 
 	public hasRequirements(...requirements: Requirements[]): boolean {
-		return requirements.every((requirement) => this.requirements.includes(requirement));
+		return requirements.every((requirement) => {
+			this.requirements.includes(requirement);
+		});
 	}
 }
 
@@ -130,11 +137,14 @@ export class BaseCommand {
 	constructor(options: BaseCommandOptions) {
 		this.requirements = options.requirements;
 		this.permissions = options.permissions.permissions;
-		this.callback = (app, interaction) => this.callbackOverride(app, interaction, this, options.callback);
+
+		this.callback = (app, interaction) => {
+			this.callbackOverride(app, interaction, this, options.callback);
+		};
 	}
 
 	protected callbackOverride(app: App, interaction: discord.CommandInteraction, baseCommand: BaseCommand, callback?: CommandCallback): void {
-		const perms: boolean = this.checkPermissions(interaction.member as discord.GuildMember);
+		const perms = this.checkPermissions(interaction.member as discord.GuildMember);
 
 		if (!perms) {
 			new MessageBuilder()
@@ -171,11 +181,12 @@ export class SubcommandManager {
 
 	private getPath(interaction: discord.CommandInteraction): string {
 		const options = interaction.options as discord.CommandInteractionOptionResolver;
-		const name = interaction.commandName;
-		const group = options.getSubcommandGroup();
-		const subgroup = options.getSubcommand();
 
-		return cleanArray<string>([name, group, subgroup]).join('.');
+		return cleanArray<string>([
+			interaction.commandName,
+			options.getSubcommandGroup(),
+			options.getSubcommand(),
+		]).join('.');
 	}
 
 	public getSubcommand(interaction: discord.CommandInteraction): Subcommand | undefined {
@@ -216,7 +227,7 @@ export class Command extends BaseCommand {
 }
 
 export class Subcommand extends BaseCommand {
-	public readonly route: string;
+	private readonly route: string;
 
 	constructor(options: SubcommandOptions) {
 		super(options);
@@ -280,14 +291,18 @@ export class App {
 	}
 
 	private registerEvents(events: Map<string, ClientEvent<any>>): void {
-		for (const { name, callback } of events.values()) {
-			this.client.on(name, (...args) => callback(this, ...args));
+		for (const event of events.values()) {
+			this.client.on(event.name, (...args) => {
+				event.callback(this, ...args);
+			});
 		}
 	}
 
 	private registerCrons(crons: Map<string, Cron>): void {
 		for (const cron of crons.values()) {
-			schedule(cron.schedule, () => cron.callback(this, cron));
+			schedule(cron.schedule, () => {
+				cron.callback(this, cron);
+			});
 		}
 	}
 
@@ -320,7 +335,7 @@ export class App {
 		}
 	}
 
-	public async fetchGuild(guildId: string) {
+	public async fetchGuild(guildId: string): Promise<discord.Guild | null> {
 		try {
 			return await this.client.guilds.fetch(guildId);
 		} catch {
@@ -328,7 +343,7 @@ export class App {
 		}
 	}
 
-	public async fetchChannel(channelId: string) {
+	public async fetchChannel(channelId: string): Promise<discord.Channel | null> {
 		try {
 			return await this.client.channels.fetch(channelId);
 		} catch {
@@ -347,7 +362,7 @@ export class App {
 		await this.leaderboardRepository.updateLeaderboard(leaderboard);
 	}
 
-	public async createVoiceChannel(guildId: string, options: CreateVoiceChannelOptions) {
+	public async createVoiceChannel(guildId: string, options: CreateVoiceChannelOptions): Promise<discord.VoiceChannel | undefined> {
 		const guild = await this.fetchGuild(guildId);
 
 		return guild?.channels.create({
@@ -356,7 +371,7 @@ export class App {
 		});
 	}
 
-	public async onVoiceChannelJoin(guildId: string, userId: string, voiceChannelId: string) {
+	public async onVoiceChannelJoin(guildId: string, userId: string, voiceChannelId: string): Promise<void> {
 		const entrypoint = await this.voiceChannelRepository.getVoiceChannelEntrypoint(guildId);
 		const member = await this.fetchMember(userId, guildId);
 
@@ -373,42 +388,53 @@ export class App {
 		if (entrypoint.channelId === voiceChannelId) {
 			const voicePreferences = await this.voiceChannelRepository.getVoicePreferences(guildId, userId);
 
-			const newVoiceChannel = await this.createVoiceChannel(guildId, {
+			const voiceChannel = await this.createVoiceChannel(guildId, {
 				name: voicePreferences?.name || `${member?.user.username}'s channel`,
 				parent: voiceChannelEntrypoint.parent,
 				userLimit: voicePreferences?.maxSlots || 0,
 			});
 
-			if (newVoiceChannel) {
-				this.voiceChannelRepository.createVoiceChannel(guildId, newVoiceChannel.id, userId);
-				member?.voice.setChannel(newVoiceChannel);
+			if (voiceChannel) {
+				this.voiceChannelRepository.createVoiceChannel(guildId, voiceChannel.id, userId);
+
+				member?.voice.setChannel(voiceChannel);
 			}
 		}
 	}
 
-	public async onVoiceChannelLeave(guildId: string, userId: string, voiceChannelId: string) {
+	public async onVoiceChannelLeave(guildId: string, userId: string, voiceChannelId: string): Promise<void> {
 		const voiceChannel = await this.fetchChannel(voiceChannelId);
 
-		if (!voiceChannel || voiceChannel.type !== discord.ChannelType.GuildVoice || voiceChannel.members.size > 0) {
+		if (
+			!voiceChannel ||
+			voiceChannel.type !== discord.ChannelType.GuildVoice ||
+			voiceChannel.members.size > 0
+		) {
 			return;
 		}
 
 		const storedVoiceChannel = await this.voiceChannelRepository.getVoiceChannel(guildId, voiceChannelId);
 
-		if (storedVoiceChannel && storedVoiceChannel.channelId === voiceChannelId) {
+		if (
+			storedVoiceChannel &&
+			storedVoiceChannel.channelId === voiceChannelId
+		) {
 			await voiceChannel.delete();
 			await storedVoiceChannel.deleteOne();
 		}
 	}
 
-	public async clearEmptyStoredVoiceChannels() {
+	public async clearEmptyStoredVoiceChannels(): Promise<void> {
 		const storedVoiceChannels = await this.voiceChannelRepository.getVoiceChannels();
 
 		for (const storedVoiceChannel of storedVoiceChannels) {
 			const { channelId } = storedVoiceChannel;
 			const voiceChannel = await this.fetchChannel(channelId) as discord.VoiceChannel;
 
-			if (voiceChannel && voiceChannel.members.size === 0) {
+			if (
+				voiceChannel &&
+				voiceChannel.members.size === 0
+			) {
 				voiceChannel.delete();
 				storedVoiceChannel.deleteOne();
 			}

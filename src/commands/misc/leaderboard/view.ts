@@ -49,4 +49,4 @@ export default new Subcommand({
 
         interaction.reply({ embeds: [embed] });
     }
-})
+});

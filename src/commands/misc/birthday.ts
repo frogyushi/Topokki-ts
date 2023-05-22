@@ -1,8 +1,13 @@
-import { ChannelType, SlashCommandBuilder } from 'discord.js';
-import { Command, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
-import set from './birthday/set';
 import channel from './birthday/channel';
+import set from './birthday/set';
 import view from './birthday/view';
+import { ChannelType, SlashCommandBuilder } from 'discord.js';
+import {
+    Command,
+    PermissionsManager,
+    RequirementsManager,
+    SubcommandManager
+} from '../../app/app';
 
 export default new Command({
     requirements: new RequirementsManager(),
@@ -52,4 +57,4 @@ export default new Command({
                 .setDescription('Enable or disable birthday notifications')
             )
         ),
-})
+});

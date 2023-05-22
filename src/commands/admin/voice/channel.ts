@@ -1,7 +1,13 @@
-import { CommandInteractionOptionResolver } from 'discord.js';
-import { MessageBuilder, MessageResponses, PermissionsManager, RequirementsManager, Subcommand } from '../../../app/app';
-import { cleanObject } from '../../../helpers';
 import VoiceEntrypointModel from '../../../models/voiceEntrypoint';
+import { cleanObject } from '../../../helpers';
+import { CommandInteractionOptionResolver } from 'discord.js';
+import {
+    MessageBuilder,
+    MessageResponses,
+    PermissionsManager,
+    RequirementsManager,
+    Subcommand
+} from '../../../app/app';
 
 export default new Subcommand({
     requirements: new RequirementsManager(),
@@ -26,7 +32,7 @@ export default new Subcommand({
             new MessageBuilder()
                 .setContent(MessageResponses.NoOptionsError)
                 .setEphemeral(true)
-                .send(interaction)
+                .send(interaction);
 
             return;
         }
@@ -35,7 +41,7 @@ export default new Subcommand({
             new MessageBuilder()
                 .setContent('Unable to update setting since no voice channel has been set')
                 .setEphemeral(true)
-                .send(interaction)
+                .send(interaction);
 
             return;
         }

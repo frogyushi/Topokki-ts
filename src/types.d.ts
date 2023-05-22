@@ -1,7 +1,7 @@
-import discord from 'discord.js';
-import * as distube from 'distube';
 import * as app from './app/app';
+import * as distube from 'distube';
 import * as player from './app/player';
+import discord from 'discord.js';
 
 export type CommandCallback = (app: app.App, interaction: discord.CommandInteraction, command: app.BaseCommand) => discord.Awaitable<void>;
 

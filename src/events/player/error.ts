@@ -1,6 +1,6 @@
+import { delay } from '../../helpers';
 import { MessageResponses } from '../../app/app';
 import { PlayerEvent } from '../../app/player';
-import { delay } from '../../helpers';
 
 export default new PlayerEvent({
     name: 'error',

@@ -1,12 +1,20 @@
-import { CommandInteractionOptionResolver } from 'discord.js';
-import { MessageBuilder, MessageResponses, PermissionsManager, RequirementsManager, Subcommand } from '../../../app/app';
-import { cleanObject } from '../../../helpers';
 import BirthdayChannelModel from '../../../models/birthdayChannel';
+import { cleanObject } from '../../../helpers';
+import { CommandInteractionOptionResolver, PermissionFlagsBits } from 'discord.js';
+import {
+    MessageBuilder,
+    MessageResponses,
+    PermissionsManager,
+    RequirementsManager,
+    Subcommand
+} from '../../../app/app';
 
 export default new Subcommand({
     requirements: new RequirementsManager(),
 
-    permissions: new PermissionsManager(),
+    permissions: new PermissionsManager(
+        PermissionFlagsBits.Administrator
+    ),
 
     route: 'birthday.channel',
 
@@ -33,7 +41,7 @@ export default new Subcommand({
             {
                 upsert: true,
                 new: true,
-                setDefaultsOnInsert: true
+                setDefaultsOnInsert: true,
             }
         );
 

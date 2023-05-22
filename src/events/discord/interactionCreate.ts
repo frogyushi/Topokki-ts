@@ -1,4 +1,9 @@
-import { ClientEvent, MessageBuilder, MessageResponses, Requirements } from '../../app/app';
+import {
+    ClientEvent,
+    MessageBuilder,
+    MessageResponses,
+    Requirements
+} from '../../app/app';
 import { GuildMember, VoiceChannel } from 'discord.js';
 
 export default new ClientEvent({

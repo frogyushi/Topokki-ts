@@ -1,8 +1,8 @@
 import * as distube from 'distube';
 import discord from 'discord.js';
+import { BaseEvent } from './app';
 import { DistubeEventCallback, PlayerEventCallback } from '../types';
 import { EventEmitter } from 'events';
-import { BaseEvent } from './app';
 
 export interface PlayerEvents {
     error: [discord.CommandInteraction, Error];
@@ -65,13 +65,17 @@ export class Player {
 
     private registerPlayerEvents(events: Map<string, PlayerEvent<any>>): void {
         for (const event of events.values()) {
-            this.emitter.on(event.name, (...args: any) => event.callback(this, ...args));
+            this.emitter.on(event.name, (...args: any) => {
+                event.callback(this, ...args);
+            });
         }
     }
 
     private registerDistubeEvents(events: Map<string, DistubeEvent<any>>): void {
         for (const event of events.values()) {
-            this.distube.on(event.name, (...args: any) => event.callback(this, ...args));
+            this.distube.on(event.name, (...args: any) => {
+                event.callback(this, ...args);
+            });
         }
     }
 

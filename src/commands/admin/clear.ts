@@ -1,5 +1,15 @@
-import { Command, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
-import { SlashCommandBuilder, CommandInteractionOptionResolver, PermissionFlagsBits, TextChannel } from 'discord.js';
+import {
+    Command,
+    PermissionsManager,
+    RequirementsManager,
+    SubcommandManager
+} from '../../app/app';
+import {
+    CommandInteractionOptionResolver,
+    PermissionFlagsBits,
+    SlashCommandBuilder,
+    TextChannel
+} from 'discord.js';
 
 export default new Command({
     requirements: new RequirementsManager(),
@@ -32,4 +42,4 @@ export default new Command({
 
         interaction.reply(`\`${amount}\` messages removed`);
     }
-})
+});

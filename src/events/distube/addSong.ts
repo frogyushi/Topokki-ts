@@ -1,5 +1,5 @@
-import { EmbedBuilder } from 'discord.js';
 import { DistubeEvent } from '../../app/player';
+import { EmbedBuilder } from 'discord.js';
 
 export default new DistubeEvent({
     name: 'addSong',
@@ -29,7 +29,7 @@ export default new DistubeEvent({
                 },
                 {
                     name: 'Position',
-                    value: queueLength ? queueLength.toString() : '-',
+                    value: queueLength ? queueLength.toString() : 'None',
                     inline: true,
                 }
             ]);

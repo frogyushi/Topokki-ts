@@ -4,22 +4,33 @@ export default new ClientEvent({
     name: 'voiceStateUpdate',
 
     callback: async (app, oldState, newState) => {
-        if (!newState?.member) {
+        const member = newState?.member;
+
+        if (!member) {
             return;
         };
 
         const { guild } = newState;
-        const member = newState.member;
         const { channelId: newChannelId } = newState;
         const { channelId: oldChannelId } = oldState || {};
 
-        if (!oldChannelId && newChannelId) {
+        if (
+            !oldChannelId &&
+            newChannelId
+        ) {
             app.onVoiceChannelJoin(guild.id, member.id, newChannelId);
-        } else if (oldChannelId && newChannelId && oldChannelId !== newChannelId) {
+        } else if (
+            oldChannelId &&
+            newChannelId &&
+            oldChannelId !== newChannelId
+        ) {
             app.onVoiceChannelLeave(guild.id, member.id, oldChannelId);
             app.onVoiceChannelJoin(guild.id, member.id, newChannelId);
-        } else if (oldChannelId && !newChannelId) {
+        } else if (
+            oldChannelId &&
+            !newChannelId
+        ) {
             app.onVoiceChannelLeave(guild.id, member.id, oldChannelId);
         }
     }
-})
+});

@@ -1,5 +1,17 @@
-import { Command, MessageBuilder, MessageResponses, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
-import { SlashCommandBuilder, CommandInteractionOptionResolver, GuildMember, PermissionFlagsBits } from 'discord.js';
+import {
+    Command,
+    MessageBuilder,
+    MessageResponses,
+    PermissionsManager,
+    RequirementsManager,
+    SubcommandManager
+} from '../../app/app';
+import {
+    CommandInteractionOptionResolver,
+    GuildMember,
+    PermissionFlagsBits,
+    SlashCommandBuilder
+} from 'discord.js';
 
 export default new Command({
     requirements: new RequirementsManager(),
@@ -45,4 +57,4 @@ export default new Command({
 
         interaction.reply(message);
     }
-})
+});

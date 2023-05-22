@@ -1,7 +1,12 @@
-import { SlashCommandBuilder } from 'discord.js';
-import { Command, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
 import remove from './leaderboard/remove';
 import view from './leaderboard/view';
+import {
+    Command,
+    PermissionsManager,
+    RequirementsManager,
+    SubcommandManager
+} from '../../app/app';
+import { SlashCommandBuilder } from 'discord.js';
 
 export default new Command({
     requirements: new RequirementsManager(),
@@ -29,4 +34,4 @@ export default new Command({
             .setName('view')
             .setDescription('Displays the leaderboard')
         ),
-})
+});

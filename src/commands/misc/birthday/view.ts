@@ -1,6 +1,12 @@
-import { GuildMember } from 'discord.js';
-import { MessageBuilder, MessageResponses, PermissionsManager, RequirementsManager, Subcommand } from '../../../app/app';
 import BirthdayModel from '../../../models/birthday';
+import { GuildMember } from 'discord.js';
+import {
+    MessageBuilder,
+    MessageResponses,
+    PermissionsManager,
+    RequirementsManager,
+    Subcommand
+} from '../../../app/app';
 
 export default new Subcommand({
     requirements: new RequirementsManager(),
@@ -14,7 +20,7 @@ export default new Subcommand({
 
         const birthdayModel = await BirthdayModel.findOne({
             guildId: interaction.guildId,
-            userId: member.id
+            userId: member.id,
         });
 
         if (!birthdayModel || !birthdayModel.date) {

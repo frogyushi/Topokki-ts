@@ -1,7 +1,7 @@
-import { EmbedBuilder, ChannelType } from 'discord.js';
-import { Cron } from '../app/app';
 import BirthdayChannelModel from '../models/birthdayChannel';
 import BirthdayModel from '../models/birthday';
+import { ChannelType, EmbedBuilder } from 'discord.js';
+import { Cron } from '../app/app';
 
 export default new Cron({
     name: 'birthday',
@@ -27,7 +27,7 @@ export default new Cron({
 
             const channel = await BirthdayChannelModel.findOne({
                 guildId: birthday.guildId,
-            })
+            });
 
             if (!channel || !channel.isEnabled || !channel.channelId) {
                 continue;
@@ -48,4 +48,4 @@ export default new Cron({
             textChannel.send({ embeds: [embed] });
         }
     }
-})
+});

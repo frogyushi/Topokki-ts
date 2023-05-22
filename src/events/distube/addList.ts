@@ -1,5 +1,5 @@
-import { TextChannel } from 'discord.js';
 import { DistubeEvent } from '../../app/player';
+import { TextChannel } from 'discord.js';
 
 export default new DistubeEvent({
     name: 'addList',

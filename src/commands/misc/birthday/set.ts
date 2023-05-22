@@ -1,25 +1,28 @@
 import BirthdayModel from '../../../models/birthday';
-import { GuildMember, PermissionFlagsBits, CommandInteractionOptionResolver } from 'discord.js';
-import { MessageBuilder, MessageResponses, PermissionsManager, RequirementsManager, Subcommand } from '../../../app/app';
 import { cleanObject } from '../../../helpers';
+import { CommandInteractionOptionResolver } from 'discord.js';
 import { isValid } from 'date-fns';
+import {
+    MessageBuilder,
+    MessageResponses,
+    PermissionsManager,
+    RequirementsManager,
+    Subcommand
+} from '../../../app/app';
 
 export default new Subcommand({
     requirements: new RequirementsManager(),
 
-    permissions: new PermissionsManager(
-        PermissionFlagsBits.Administrator
-    ),
+    permissions: new PermissionsManager(),
 
     route: 'birthday.set',
 
     callback: async (app, interaction) => {
         const interactionOptions = interaction.options as CommandInteractionOptionResolver;
-        const member = interaction.options.getMember('member') as GuildMember;
 
         const birthdayModel = await BirthdayModel.findOne({
             guildId: interaction.guildId,
-            userId: member.id
+            userId: interaction.member!.user.id
         });
 
         const options = cleanObject({
@@ -40,7 +43,7 @@ export default new Subcommand({
             new MessageBuilder()
                 .setContent('Unable to update setting since no date has been specified')
                 .setEphemeral(true)
-                .send(interaction)
+                .send(interaction);
 
             return;
         }
@@ -49,7 +52,7 @@ export default new Subcommand({
             new MessageBuilder()
                 .setContent('The provided date is invalid')
                 .setEphemeral(true)
-                .send(interaction)
+                .send(interaction);
 
             return;
         }
@@ -66,4 +69,4 @@ export default new Subcommand({
 
         interaction.reply(MessageResponses.SettingsUpdateSuccess);
     }
-})
+});

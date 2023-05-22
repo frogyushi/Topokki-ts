@@ -1,7 +1,13 @@
-import { CommandInteractionOptionResolver, Guild, VoiceChannel } from 'discord.js';
-import { MessageBuilder, MessageResponses, PermissionsManager, RequirementsManager, Subcommand } from '../../../app/app';
-import { cleanObject } from '../../../helpers';
 import VoicePreferencesModel from '../../../models/voicePreferences';
+import { cleanObject } from '../../../helpers';
+import { CommandInteractionOptionResolver, Guild, VoiceChannel } from 'discord.js';
+import {
+    MessageBuilder,
+    MessageResponses,
+    PermissionsManager,
+    RequirementsManager,
+    Subcommand
+} from '../../../app/app';
 
 export default new Subcommand({
     requirements: new RequirementsManager(),
@@ -31,7 +37,7 @@ export default new Subcommand({
             new MessageBuilder()
                 .setContent(MessageResponses.NoOptionsError)
                 .setEphemeral(true)
-                .send(interaction)
+                .send(interaction);
 
             return;
         }
@@ -46,7 +52,10 @@ export default new Subcommand({
             }
         );
 
-        if (voiceChannel && storedVoiceChannel?.ownerId === member.id) {
+        if (
+            voiceChannel &&
+            storedVoiceChannel?.ownerId === member.id
+        ) {
             if (voicePreferences?.name) {
                 voiceChannel.setName(voicePreferences.name);
             };

@@ -6,4 +6,4 @@ export default new ClientEvent({
     callback: async (app, member) => {
         app.updateLeaderboard(member.guild.id, member.id);
     },
-})
+});

@@ -1,4 +1,4 @@
-import { Command, BaseEvent, Cron } from './app/app';
+import { BaseEvent, Command, Cron } from './app/app';
 
 export function registerEvents<Event extends BaseEvent>(...events: Event[]): Map<string, Event> {
     return new Map(events.map((event) => [event.name, event]));

@@ -1,5 +1,11 @@
-import { SlashCommandBuilder, Guild, EmbedBuilder } from 'discord.js';
-import { Command, PermissionsManager, Requirements, RequirementsManager, SubcommandManager } from '../../app/app';
+import {
+    Command,
+    PermissionsManager,
+    Requirements,
+    RequirementsManager,
+    SubcommandManager
+} from '../../app/app';
+import { EmbedBuilder, Guild, SlashCommandBuilder } from 'discord.js';
 import { Queue } from 'distube';
 
 export default new Command({
@@ -34,4 +40,4 @@ export default new Command({
 
         interaction.reply({ embeds: [embed] });
     }
-})
+});

@@ -1,7 +1,12 @@
-import { ChannelType, SlashCommandBuilder } from 'discord.js';
-import { Command, PermissionsManager, RequirementsManager, SubcommandManager } from '../../app/app';
-import set from './voice/set';
 import channel from './voice/channel';
+import set from './voice/set';
+import { ChannelType, SlashCommandBuilder } from 'discord.js';
+import {
+    Command,
+    PermissionsManager,
+    RequirementsManager,
+    SubcommandManager
+} from '../../app/app';
 
 export default new Command({
     requirements: new RequirementsManager(),
@@ -43,4 +48,4 @@ export default new Command({
                 .setDescription('Enable or disable the custom voice channel feature')
             )
         ),
-})
+});
